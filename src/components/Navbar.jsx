@@ -11,6 +11,7 @@ import {
 import logoSMA from "../assets/logo.jpg";
 import { SERVICES } from "../data/content";
 import { useApp } from "../context/AppState";
+import { useToast } from "../context/Toast";
 import logoTutWuri from "../assets/logo-tutwuri.png";
 import logoJakarta from "../assets/logo-jakarta.png";
 
@@ -151,11 +152,13 @@ function Navbar() {
   const { pathname: path } = useLocation();
   const { user, dispatch } = useApp();
   const navigate = useNavigate();
+  const toast = useToast();
   const close = () => setOpen(false);
 
   const logout = () => {
     close();
     dispatch({ type: "LOGOUT" });
+    toast.info("Anda telah keluar.");
     navigate("/");
   };
 

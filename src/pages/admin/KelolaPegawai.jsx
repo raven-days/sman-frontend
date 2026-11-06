@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUpTrayIcon, MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { api } from "../../lib/api";
-import Modal from "../../components/Modal";
+import { useToast } from "../../context/Toast";
+import { useConfirm } from "../../context/Confirm";
+import { useSubmit } from "../../lib/useSubmit";
 
 const MAX_MB = 5;
 const TABS = [
@@ -10,16 +12,15 @@ const TABS = [
 ];
 
 export default function KelolaPegawai() {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [data, setData] = useState({ guru: [], tendik: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("guru");
   const [q, setQ] = useState("");
   const [file, setFile] = useState(null);
-  const [konfirmasi, setKonfirmasi] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [hasil, setHasil] = useState("");
-  const [hapus, setHapus] = useState(null);
+  const [fileErr, setFileErr] = useState("");
   const inputRef = useRef(null);
 
   const muat = useCallback(async () => {
@@ -37,41 +38,56 @@ export default function KelolaPegawai() {
 
   const pilihFile = (e) => {
     const f = e.target.files?.[0];
-    setHasil("");
+    setFileErr("");
     if (!f) return setFile(null);
-    if (!/\.(xlsx|xls)$/i.test(f.name)) { setError("File harus berformat Excel (.xlsx atau .xls)."); e.target.value = ""; return setFile(null); }
-    if (f.size > MAX_MB * 1024 * 1024) { setError(`Ukuran file maksimal ${MAX_MB} MB.`); e.target.value = ""; return setFile(null); }
-    setError("");
+    if (!/\.(xlsx|xls)$/i.test(f.name)) { setFileErr("File harus berformat Excel (.xlsx atau .xls)."); e.target.value = ""; return setFile(null); }
+    if (f.size > MAX_MB * 1024 * 1024) { setFileErr(`Ukuran file maksimal ${MAX_MB} MB.`); e.target.value = ""; return setFile(null); }
     setFile(f);
   };
 
-  const unggah = async () => {
-    setKonfirmasi(false);
-    setUploading(true);
-    setError("");
-    const fd = new FormData();
-    fd.append("file", file);
-    try {
-      const res = await api("/admin/pegawai/import", { method: "POST", body: fd });
-      setHasil(res.message);
+  const [unggah, uploading] = useSubmit(async () => {
+    if (!file) return;
+    const ya = await confirm({
+      title: "Ganti seluruh daftar pegawai?",
+      description: "Daftar guru dan tenaga kependidikan yang sekarang akan diganti dengan isi file Excel ini.",
+      items: [
+        { label: "File", value: file.name },
+        { label: "Guru saat ini", value: `${data.guru?.length ?? 0} orang` },
+        { label: "Tendik saat ini", value: `${data.tendik?.length ?? 0} orang` },
+      ],
+      consequence: "Data yang ada sekarang akan tergantikan seluruhnya. Pastikan file sudah benar sebelum melanjutkan.",
+      confirmText: "Ya, ganti daftar",
+      tone: "warning",
+      action: async () => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await api("/admin/pegawai/import", { method: "POST", body: fd });
+        toast.success(res?.message || "Daftar pegawai berhasil diperbarui.");
+      },
+    });
+    if (ya) {
       setFile(null);
       if (inputRef.current) inputRef.current.value = "";
       await muat();
-    } catch (err) {
-      setError(err.errors ? Object.values(err.errors)[0][0] : err.message);
-    } finally {
-      setUploading(false);
     }
-  };
+  });
 
-  const hapusSatu = async () => {
-    try {
-      await api(`/admin/pegawai/${hapus.id}`, { method: "DELETE" });
-      setHapus(null);
-      await muat();
-    } catch (err) {
-      setError(err.message);
-      setHapus(null);
+  const hapusSatu = async (r) => {
+    const ya = await confirm({
+      title: "Hapus pegawai ini?",
+      description: "Data pegawai akan dihapus dari daftar di website.",
+      items: [
+        { label: "Nama", value: r.nama },
+        { label: "Jabatan", value: r.jabatan },
+        { label: "Kategori", value: tab === "guru" ? "Guru" : "Tenaga Kependidikan" },
+      ],
+      confirmText: "Hapus pegawai",
+      tone: "danger",
+      action: () => api(`/admin/pegawai/${r.id}`, { method: "DELETE" }),
+    });
+    if (ya) {
+      toast.success(`${r.nama} dihapus dari daftar.`);
+      muat();
     }
   };
 
@@ -89,20 +105,34 @@ export default function KelolaPegawai() {
           Mengunggah file akan <b>mengganti seluruh daftar</b> yang ada.
         </p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <input ref={inputRef} type="file" accept=".xlsx,.xls" onChange={pilihFile} aria-label="File Excel pegawai" className="block text-sm" />
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={pilihFile}
+            aria-label="File Excel pegawai"
+            aria-invalid={fileErr ? "true" : undefined}
+            aria-describedby={fileErr ? "pegawai-file-err" : undefined}
+            className="block text-sm"
+          />
           <button
             type="button"
             disabled={!file || uploading}
-            onClick={() => setKonfirmasi(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50"
+            onClick={unggah}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           >
-            <ArrowUpTrayIcon className="h-5 w-5" /> {uploading ? "Mengunggah..." : "Unggah"}
+            <ArrowUpTrayIcon className="h-5 w-5" /> {uploading ? "Memproses..." : "Unggah"}
           </button>
         </div>
-        {hasil && <p role="status" className="mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{hasil}</p>}
+        {fileErr && <p id="pegawai-file-err" className="mt-2 text-xs font-medium text-red-600">{fileErr}</p>}
       </section>
 
-      {error && <p role="alert" className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && (
+        <div role="alert" className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <span>{error}</span>
+          <button type="button" onClick={muat} className="font-semibold underline">Coba lagi</button>
+        </div>
+      )}
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <div role="tablist" className="inline-flex rounded-xl bg-surface p-1">
@@ -113,7 +143,7 @@ export default function KelolaPegawai() {
               type="button"
               aria-selected={tab === t.id}
               onClick={() => { setTab(t.id); setQ(""); }}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold ${tab === t.id ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-navy"}`}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === t.id ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-navy"}`}
             >
               {t.label} <span className="text-xs font-normal text-slate-400">({data[t.id]?.length ?? 0})</span>
             </button>
@@ -138,14 +168,14 @@ export default function KelolaPegawai() {
           </thead>
           <tbody className="divide-y divide-line">
             {loading && <tr><td colSpan={4} className="px-4 py-10 text-center text-slate-500">Memuat data...</td></tr>}
-            {!loading && rows.length === 0 && <tr><td colSpan={4} className="px-4 py-10 text-center text-slate-500">Belum ada data. Unggah file Excel di atas.</td></tr>}
+            {!loading && !error && rows.length === 0 && <tr><td colSpan={4} className="px-4 py-10 text-center text-slate-500">Belum ada data. Unggah file Excel di atas.</td></tr>}
             {rows.map((r, i) => (
               <tr key={r.id}>
                 <td className="px-4 py-3 text-slate-500">{i + 1}</td>
                 <td className="px-4 py-3 font-semibold text-navy">{r.nama}</td>
                 <td className="px-4 py-3">{r.jabatan}</td>
                 <td className="px-4 py-3 text-right">
-                  <button type="button" aria-label={`Hapus ${r.nama}`} onClick={() => setHapus(r)} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600">
+                  <button type="button" aria-label={`Hapus ${r.nama}`} onClick={() => hapusSatu(r)} className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600">
                     <TrashIcon className="h-5 w-5" />
                   </button>
                 </td>
@@ -154,36 +184,6 @@ export default function KelolaPegawai() {
           </tbody>
         </table>
       </div>
-
-      {konfirmasi && (
-        <Modal
-          title="Ganti seluruh daftar pegawai?"
-          onClose={() => setKonfirmasi(false)}
-          footer={
-            <>
-              <button type="button" onClick={() => setKonfirmasi(false)} className="rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-navy hover:bg-surface">Batal</button>
-              <button type="button" onClick={unggah} className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark">Ya, ganti</button>
-            </>
-          }
-        >
-          <p className="text-sm text-slate-700">Daftar guru dan tenaga kependidikan yang sekarang akan diganti dengan isi file <b>{file?.name}</b>.</p>
-        </Modal>
-      )}
-
-      {hapus && (
-        <Modal
-          title="Hapus pegawai?"
-          onClose={() => setHapus(null)}
-          footer={
-            <>
-              <button type="button" onClick={() => setHapus(null)} className="rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-navy hover:bg-surface">Batal</button>
-              <button type="button" onClick={hapusSatu} className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700">Hapus</button>
-            </>
-          }
-        >
-          <p className="text-sm text-slate-700"><b>{hapus.nama}</b> akan dihapus dari daftar di website.</p>
-        </Modal>
-      )}
     </>
   );
 }

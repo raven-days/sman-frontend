@@ -4,6 +4,7 @@ import { CheckIcon } from "@heroicons/react/24/solid";
 import { JENIS_SURAT } from "../data/content";
 import { useApp, EMPTY_DRAFT } from "../context/AppState";
 import { api } from "../lib/api";
+import { useUnsavedChanges } from "../lib/useUnsaved";
 import { fmtDate } from "../lib/format";
 import RequestForm, { validate } from "../components/RequestForm";
 
@@ -19,6 +20,8 @@ export default function Ajukan() {
   const [sending, setSending] = useState(false);
   const [sendErr, setSendErr] = useState("");  
 
+  // Draf hanya ada di memori: peringatkan bila halaman ditutup/dimuat ulang saat draf terisi
+  useUnsavedChanges(!!(draft.jenis || draft.perihal || draft.keterangan || draft.lampiran.length), { block: false });
   const change = (partial) => setDraft({ ...draft, ...partial });
 
   const next = () => {

@@ -14,7 +14,7 @@ const MENU = [
 export default function AdminLayout() {
   return (
     <div className="mx-auto grid max-w-[1200px] gap-6 px-5 py-10 sm:px-8 md:grid-cols-[220px_1fr]">
-      <aside>
+      <aside className="min-w-0">
         <p className="text-xs font-bold uppercase tracking-widest text-primary">Dashboard admin</p>
         <nav className="mt-3 flex gap-2 overflow-x-auto md:flex-col">
           {MENU.map((m) => (

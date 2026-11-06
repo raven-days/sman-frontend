@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../lib/api";
+import { useToast } from "../context/Toast";
+import { useSubmit } from "../lib/useSubmit";
+import Field, { inputCls } from "../components/Field";
 import { fmtDate } from "../lib/format";
 import { FIELD_LABELS } from "../data/content";
 import StatusBadge from "../components/StatusBadge";
@@ -13,6 +16,7 @@ const btn = "rounded-lg px-5 py-2.5 text-sm font-semibold";
 
 export default function PetugasDetail() {
   const { id } = useParams();
+  const toast = useToast();
   const [req, setReq] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -21,8 +25,25 @@ export default function PetugasDetail() {
   const [fields, setFields] = useState({});
   const [alasan, setAlasan] = useState("");
   const [err, setErr] = useState("");
-  const [toast, setToast] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [errAlasan, setErrAlasan] = useState("");
+
+  // Ubah status. Dijaga agar tidak bisa terkirim dua kali (klik ganda).
+  const [go, saving] = useSubmit(async (status, note = "", fieldNotes = {}) => {
+    setErr("");
+    try {
+      const res = await api(`/admin/pengajuan/${id}/status`, {
+        method: "POST",
+        body: { status, catatan: note, catatan_field: fieldNotes },
+      });
+      setReq(res);
+      toast.success(`Status pengajuan ${res.id} diubah menjadi ${status}.`);
+      setModal(null);
+      setUmum(""); setFields({}); setAlasan(""); setErrAlasan("");
+    } catch (e) {
+      if (modal) setErr(e.message);
+      else toast.galat(e);
+    }
+  });
 
   useEffect(() => {
     let batal = false;
@@ -42,35 +63,17 @@ export default function PetugasDetail() {
     );
   }
 
-  const go = async (status, note = "", fieldNotes = {}) => {
-    setSaving(true);
-    setErr("");
-    setToast("");
-    try {
-      const res = await api(`/admin/pengajuan/${req.id}/status`, {
-        method: "POST",
-        body: { status, catatan: note, catatan_field: fieldNotes },
-      });
-      setReq(res);
-      setToast(`Status diubah menjadi ${status}.`);
-      setModal(null);
-      setUmum(""); setFields({}); setAlasan("");
-    } catch (e) {
-      if (modal) setErr(e.message);
-      else setToast(`Gagal: ${e.message}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const kirimPerbaikan = () => {
     const fieldNotes = Object.fromEntries(Object.entries(fields).filter(([, v]) => v.trim()).map(([k, v]) => [k, v.trim()]));
     if (!umum.trim() && Object.keys(fieldNotes).length === 0) return setErr("Isi catatan umum atau minimal satu catatan pada kolom.");
     go("Perlu Perbaikan", umum.trim() || "Mohon perbaiki isian sesuai catatan pada kolom yang ditandai, lalu kirim ulang.", fieldNotes);
   };
 
+  const cekAlasan = (v) => (v.trim().length < 5 ? "Alasan penolakan wajib diisi (minimal 5 karakter)." : "");
   const tolak = () => {
-    if (alasan.trim().length < 5) return setErr("Alasan penolakan wajib diisi.");
+    const m = cekAlasan(alasan);
+    setErrAlasan(m);
+    if (m) return;
     go("Ditolak", alasan.trim());
   };
 
@@ -81,8 +84,6 @@ export default function PetugasDetail() {
         <Link to="/akun" className="hover:text-primary">Akun Saya</Link> /{" "}
         <Link to="/petugas" className="hover:text-primary">Antrian Pengajuan</Link> / {req.id}
       </nav>
-
-      {toast && <p role="status" className="mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{toast}</p>}
 
       <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -138,15 +139,18 @@ export default function PetugasDetail() {
       {modal === "perbaikan" && (
         <Modal
           title="Minta perbaikan"
+          locked={saving}
           onClose={() => setModal(null)}
           footer={
             <>
-              <button type="button" onClick={() => setModal(null)} className={`${btn} border border-line`}>Batal</button>
-              <button type="button" onClick={kirimPerbaikan} className={`${btn} bg-primary text-white hover:bg-primary-dark`}>Kirim ke Pemohon</button>
+              <button type="button" disabled={saving} onClick={() => setModal(null)} className={`${btn} border border-line transition-colors hover:bg-surface disabled:opacity-60`}>Batal</button>
+              <button type="button" disabled={saving} onClick={kirimPerbaikan} className={`${btn} bg-primary text-white transition-colors hover:bg-primary-dark disabled:opacity-70`}>{saving ? "Mengirim..." : "Kirim ke Pemohon"}</button>
             </>
           }
         >
-          <p className="text-sm text-slate-600">Pengajuan akan ditunda. Tuliskan bagian yang salah supaya pemohon bisa memperbaikinya.</p>
+          <p className="text-sm text-slate-600">
+            Pengajuan <b>{req.id}</b> dari <b>{req.pemohon}</b> akan ditunda. Tuliskan bagian yang salah supaya pemohon bisa memperbaikinya.
+          </p>
           <label htmlFor="umum" className="mt-4 block text-sm font-semibold text-navy">Catatan umum</label>
           <textarea id="umum" rows={2} value={umum} onChange={(e) => setUmum(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
           <p className="mt-4 text-sm font-semibold text-navy">Catatan per kolom (opsional)</p>
@@ -162,18 +166,40 @@ export default function PetugasDetail() {
 
       {modal === "tolak" && (
         <Modal
-          title="Tolak pengajuan"
+          title="Tolak pengajuan ini?"
+          role="alertdialog"
+          locked={saving}
           onClose={() => setModal(null)}
           footer={
             <>
-              <button type="button" onClick={() => setModal(null)} className={`${btn} border border-line`}>Batal</button>
-              <button type="button" onClick={tolak} className={`${btn} bg-red-600 text-white hover:bg-red-700`}>Tolak Pengajuan</button>
+              <button type="button" data-autofocus disabled={saving} onClick={() => setModal(null)} className={`${btn} border border-line transition-colors hover:bg-surface disabled:opacity-60`}>Batal</button>
+              <button type="button" disabled={saving} onClick={tolak} className={`${btn} bg-red-600 text-white transition-colors hover:bg-red-700 disabled:opacity-70`}>{saving ? "Memproses..." : "Ya, Tolak Pengajuan"}</button>
             </>
           }
         >
-          <p className="text-sm text-slate-600">Penolakan bersifat final. Jika isian hanya perlu dibetulkan, gunakan Minta Perbaikan.</p>
-          <label htmlFor="alasan" className="mt-4 block text-sm font-semibold text-navy">Alasan penolakan <span className="text-red-600">*</span></label>
-          <textarea id="alasan" rows={3} value={alasan} onChange={(e) => setAlasan(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
+          <dl className="divide-y divide-line rounded-lg border border-line bg-surface text-sm">
+            {[["Nomor", req.id], ["Layanan", req.jenis], ["Pemohon", req.pemohon], ["Perihal", req.perihal]].map(([k, v]) => (
+              <div key={k} className="grid gap-1 px-3 py-2 sm:grid-cols-3">
+                <dt className="text-slate-500">{k}</dt>
+                <dd className="break-words font-semibold text-navy sm:col-span-2">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">
+            Penolakan bersifat final dan pemohon tidak bisa mengirim ulang. Jika isian hanya perlu dibetulkan, gunakan Minta Perbaikan.
+          </p>
+          <Field label="Alasan penolakan" required error={errAlasan} className="mt-4">
+            {(p) => (
+              <textarea
+                {...p}
+                rows={3}
+                value={alasan}
+                onChange={(e) => { setAlasan(e.target.value); if (errAlasan) setErrAlasan(cekAlasan(e.target.value)); }}
+                onBlur={() => setErrAlasan(cekAlasan(alasan))}
+                className={`${inputCls(errAlasan)} py-2`}
+              />
+            )}
+          </Field>
           {err && <p role="alert" className="mt-2 text-xs font-medium text-red-600">{err}</p>}
         </Modal>
       )}

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
 import { api, setToken, DEMO } from "../lib/api";
+import { useToast } from "./Toast";
 
 const KEY = "sman104-demo-v2";
 
@@ -34,6 +35,7 @@ const Ctx = createContext(null);
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, undefined, load);
   const [draft, setDraft] = useState(EMPTY_DRAFT);
+  const toast = useToast();
 
   useEffect(() => {
     try {
@@ -48,12 +50,20 @@ export function AppProvider({ children }) {
     if (!state.user) setToken(null);
   }, [state.user]);
 
-  // Kalau token sudah tidak berlaku, keluarkan otomatis
+  // Server menolak token (kedaluwarsa/dicabut): keluar otomatis dan beri tahu pengguna.
+  useEffect(() => {
+    const h = () => {
+      dispatch({ type: "LOGOUT" });
+      toast.warning("Sesi Anda telah berakhir. Silakan masuk kembali.");
+    };
+    window.addEventListener("sman:unauthorized", h);
+    return () => window.removeEventListener("sman:unauthorized", h);
+  }, [toast]);
+
+  // Cek token saat halaman dibuka (kalau ditolak, api() mengirim event di atas)
   useEffect(() => {
     if (DEMO || !state.user) return;
-    api("/me").catch((e) => {
-      if (e.status === 401) dispatch({ type: "LOGOUT" });
-    });
+    api("/me").catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

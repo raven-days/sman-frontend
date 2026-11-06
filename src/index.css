@@ -33,3 +33,35 @@ h3 {
   -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
   mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
 }
+
+/* Animasi notifikasi dan dialog (hanya transform dan opacity) */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(6px); }
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.anim-toast-in { animation: toast-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.anim-toast-out { animation: toast-out 0.18s ease-in both; }
+.anim-dialog-in { animation: dialog-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.anim-backdrop-in { animation: backdrop-in 0.15s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-toast-in,
+  .anim-toast-out,
+  .anim-dialog-in,
+  .anim-backdrop-in {
+    animation-duration: 0.01ms;
+  }
+  html { scroll-behavior: auto; }
+}

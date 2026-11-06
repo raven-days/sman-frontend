@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useApp } from "../context/AppState";
 import { api } from "../lib/api";
+import { useUnsavedChanges } from "../lib/useUnsaved";
 import { fmtDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
 import Timeline from "../components/Timeline";
@@ -25,6 +26,8 @@ export default function PengajuanDetail() {
   const [sending, setSending] = useState(false);
   const [sendErr, setSendErr] = useState("");
 
+  // Peringatan kalau formulir perbaikan sudah diubah tetapi belum dikirim
+  useUnsavedChanges(!!edit);
   useEffect(() => {
     if (user.role === "tu") return;
     let batal = false;
