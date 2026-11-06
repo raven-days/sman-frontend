@@ -18,6 +18,13 @@ import PengajuanDetail from "./pages/PengajuanDetail";
 import PetugasList from "./pages/PetugasList";
 import PetugasDetail from "./pages/PetugasDetail";
 import ComingSoon from "./pages/ComingSoon";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/Dashboard";
+import KelolaSK from "./pages/admin/KelolaSK";
+import KelolaPegawai from "./pages/admin/KelolaPegawai";
+import KelolaPengumuman from "./pages/admin/KelolaPengumuman";
+import Pengumuman from "./pages/Pengumuman";
+import PengumumanDetail from "./pages/PengumumanDetail";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -52,6 +59,8 @@ export default function App() {
             <Route path="/layanan/kepegawaian" element={<Kepegawaian />} />
             <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/surat-keputusan" element={<SuratKeputusan />} />
+            <Route path="/pengumuman" element={<Pengumuman />} />
+            <Route path="/pengumuman/:id" element={<PengumumanDetail />} />
             <Route path="/kontak" element={<Kontak />} />
             <Route path="/ajukan" element={<Ajukan />} />
 
@@ -61,6 +70,13 @@ export default function App() {
             <Route path="/pengajuan/:id" element={<RequireRole roles={SEMUA}><PengajuanDetail /></RequireRole>} />
             <Route path="/petugas" element={<RequireRole roles={["tu"]}><PetugasList /></RequireRole>} />
             <Route path="/petugas/:id" element={<RequireRole roles={["tu"]}><PetugasDetail /></RequireRole>} />
+
+            <Route path="/admin" element={<RequireRole roles={["tu"]}><AdminLayout /></RequireRole>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="sk" element={<KelolaSK />} />
+              <Route path="pegawai" element={<KelolaPegawai />} />
+              <Route path="pengumuman" element={<KelolaPengumuman />} />
+            </Route>
 
             {/* Halaman lain (denah, pengumuman, dst.) masih placeholder */}
             <Route path="*" element={<ComingSoon />} />

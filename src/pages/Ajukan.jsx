@@ -2,19 +2,22 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import { JENIS_SURAT } from "../data/content";
-import { useApp, nextId, EMPTY_DRAFT } from "../context/AppState";
-import { nowLabel, fmtDate } from "../lib/format";
+import { useApp, EMPTY_DRAFT } from "../context/AppState";
+import { api } from "../lib/api";
+import { fmtDate } from "../lib/format";
 import RequestForm, { validate } from "../components/RequestForm";
 
 const STEPS = ["Pilih Layanan", "Isi Formulir", "Konfirmasi"];
 
 export default function Ajukan() {
-  const { user, requests, draft, setDraft, dispatch } = useApp();
+  const { user, draft, setDraft } = useApp();
   const navigate = useNavigate();
   const [step, setStep] = useState(draft.perihal ? 2 : 0);
   const [errors, setErrors] = useState({});
   const [agree, setAgree] = useState(false);
   const [agreeErr, setAgreeErr] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendErr, setSendErr] = useState("");  
 
   const change = (partial) => setDraft({ ...draft, ...partial });
 
@@ -29,30 +32,28 @@ export default function Ajukan() {
     if (Object.keys(e).length === 0) setStep(2);
   };
 
-  const submit = () => {
-    if (!user) return navigate("/login", { state: { from: "/ajukan" } });
-    if (!agree) return setAgreeErr("Centang pernyataan di atas sebelum mengirim.");
-    const id = nextId(requests);
-    dispatch({
-      type: "SUBMIT",
-      req: {
-        id,
-        jenis: draft.jenis,
-        perihal: draft.perihal.trim(),
-        tanggal: draft.tanggal,
-        keterangan: draft.keterangan.trim(),
-        lampiran: draft.lampiran,
-        pemohon: user.name,
-        ownerRole: user.role,
-        status: "Menunggu",
-        fieldNotes: {},
-        revisi: 0,
-        history: [{ label: "Diajukan", status: "Menunggu", time: nowLabel(), by: user.name, note: "" }],
-      },
-    });
+  const submit = async () => {
+  if (!user) return navigate("/login", { state: { from: "/ajukan" } });
+  if (user.role === "tu") return setSendErr("Akun petugas TU tidak dapat mengajukan layanan.");
+  if (!agree) return setAgreeErr("Centang pernyataan di atas sebelum mengirim.");
+  setSending(true);
+  setSendErr("");
+  const fd = new FormData();
+  fd.append("jenis", draft.jenis);
+  fd.append("perihal", draft.perihal.trim());
+  fd.append("tanggal", draft.tanggal);
+  fd.append("keterangan", draft.keterangan.trim());
+  draft.lampiran.forEach((l) => fd.append("lampiran[]", l.file));
+  try {
+    const res = await api("/pengajuan", { method: "POST", body: fd });
     setDraft(EMPTY_DRAFT);
-    navigate(`/pengajuan/${id}`, { state: { baru: true } });
-  };
+    navigate(`/pengajuan/${res.id}`, { state: { baru: true } });
+  } catch (err) {
+    setSendErr(err.errors ? Object.values(err.errors)[0][0] : err.message);
+  } finally {
+    setSending(false);
+  }
+};
 
   return (
     <div className="mx-auto max-w-[760px] px-5 py-12 sm:px-8">
@@ -126,7 +127,7 @@ export default function Ajukan() {
                 ["Perihal / keperluan", draft.perihal],
                 ["Tanggal dibutuhkan", fmtDate(draft.tanggal)],
                 ["Keterangan tambahan", draft.keterangan || "-"],
-                ["Lampiran", draft.lampiran.length ? draft.lampiran.join(", ") : "Tidak ada"],
+                ["Lampiran", draft.lampiran.length ? draft.lampiran.map((l) => l.nama).join(", ") : "Tidak ada"],
               ].map(([k, v]) => (
                 <div key={k} className="grid gap-1 py-3 sm:grid-cols-3">
                   <dt className="text-slate-500">{k}</dt>
@@ -146,6 +147,7 @@ export default function Ajukan() {
         )}
       </section>
 
+{sendErr && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{sendErr}</p>}
       <div className="mt-6 flex justify-between">
         {step > 0 ? (
           <button type="button" onClick={() => setStep(step - 1)} className="rounded-lg border border-line bg-white px-6 py-3 text-sm font-semibold text-navy hover:bg-blue-50">
@@ -157,8 +159,8 @@ export default function Ajukan() {
         {step < 2 ? (
           <button type="button" onClick={next} className="rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-white hover:bg-primary-dark">Lanjut</button>
         ) : (
-          <button type="button" onClick={submit} className="rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-white hover:bg-primary-dark">
-            {user ? "Kirim Pengajuan" : "Masuk untuk Mengirim"}
+          <button type="button" onClick={submit} disabled={sending} className="rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-70">
+            {sending ? "Mengirim..." : user ? "Kirim Pengajuan" : "Masuk untuk Mengirim"}
           </button>
         )}
       </div>

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useApp } from "../context/AppState";
+import { api } from "../lib/api";
 import { fmtDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
 import Timeline from "../components/Timeline";
+import LampiranList from "../components/LampiranList";
 import RequestForm, { validate } from "../components/RequestForm";
 import Forbidden from "./Forbidden";
 
@@ -12,14 +14,30 @@ const pick = (r) => ({ jenis: r.jenis, perihal: r.perihal, tanggal: r.tanggal, k
 
 export default function PengajuanDetail() {
   const { id } = useParams();
-  const { user, requests, dispatch } = useApp();
+  const { user } = useApp();
   const { state } = useLocation();
-  const req = requests.find((r) => r.id === id);
+  const [req, setReq] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [edit, setEdit] = useState(null);
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendErr, setSendErr] = useState("");
 
-  if (!req) {
+  useEffect(() => {
+    if (user.role === "tu") return;
+    let batal = false;
+    api(`/pengajuan/${id}`)
+      .then((d) => { if (!batal) { setReq(d); setLoading(false); } })
+      .catch((e) => { if (!batal) { setError(e); setLoading(false); } });
+    return () => { batal = true; };
+  }, [id, user.role]);
+
+  if (user.role === "tu") return <Navigate to={`/petugas/${id}`} replace />;
+  if (loading) return <p className="px-5 py-24 text-center text-sm text-slate-500">Memuat data...</p>;
+  if (error?.status === 403) return <Forbidden />;
+  if (error || !req) {
     return (
       <div className="mx-auto max-w-[600px] px-5 py-24 text-center">
         <h1 className="text-2xl font-extrabold text-navy">Pengajuan tidak ditemukan</h1>
@@ -27,20 +45,33 @@ export default function PengajuanDetail() {
       </div>
     );
   }
-  if (user.role === "tu") return <Navigate to={`/petugas/${id}`} replace />;
-  if (req.ownerRole !== user.role) return <Forbidden />;
 
   const perbaikan = req.status === "Perlu Perbaikan";
   const values = edit || pick(req);
   const lastNote = [...req.history].reverse().find((h) => h.label === "Perlu Perbaikan");
 
-  const resubmit = () => {
+  const resubmit = async () => {
     const e = validate(values);
     setErrors(e);
     if (Object.keys(e).length) return;
-    dispatch({ type: "RESUBMIT", id: req.id, by: user.name, data: { ...values, perihal: values.perihal.trim() } });
-    setEdit(null);
-    setSent(true);
+    setSending(true);
+    setSendErr("");
+    const fd = new FormData();
+    fd.append("jenis", values.jenis);
+    fd.append("perihal", values.perihal.trim());
+    fd.append("tanggal", values.tanggal);
+    fd.append("keterangan", (values.keterangan || "").trim());
+    values.lampiran.forEach((l) => (l.file ? fd.append("lampiran[]", l.file) : fd.append("lampiran_tetap[]", l.id)));
+    try {
+      const res = await api(`/pengajuan/${req.id}/kirim-ulang`, { method: "POST", body: fd });
+      setReq(res);
+      setEdit(null);
+      setSent(true);
+    } catch (err) {
+      setSendErr(err.errors ? Object.values(err.errors)[0][0] : err.message);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -50,7 +81,7 @@ export default function PengajuanDetail() {
         <Link to="/pengajuan" className="hover:text-primary">Pengajuan Saya</Link> / {req.id}
       </nav>
 
-      {state?.baru && (
+      {state?.baru && !sent && (
         <p className="mt-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
           <CheckCircleIcon className="h-5 w-5 shrink-0" />
           Pengajuan berhasil dikirim. Simpan nomor pengajuan Anda: <b>{req.id}</b>.
@@ -82,13 +113,21 @@ export default function PengajuanDetail() {
         </section>
       )}
 
+      {req.status === "Ditolak" && (
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
+          <p className="font-bold">Pengajuan ditolak</p>
+          <p className="mt-1">{[...req.history].reverse().find((h) => h.status === "Ditolak")?.note}</p>
+        </section>
+      )}
+
       <section className="mt-6 rounded-xl border border-line bg-white p-6">
         <h2 className="text-lg font-bold text-navy">{perbaikan ? "Perbaiki isian" : "Data pengajuan"}</h2>
         {perbaikan ? (
           <div className="mt-5">
             <RequestForm values={values} onChange={(p) => setEdit({ ...values, ...p })} errors={errors} notes={req.fieldNotes || {}} showJenis />
-            <button type="button" onClick={resubmit} className="mt-6 rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-white hover:bg-primary-dark">
-              Kirim Ulang Pengajuan
+            {sendErr && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{sendErr}</p>}
+            <button type="button" onClick={resubmit} disabled={sending} className="mt-6 rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-70">
+              {sending ? "Mengirim..." : "Kirim Ulang Pengajuan"}
             </button>
           </div>
         ) : (
@@ -97,13 +136,16 @@ export default function PengajuanDetail() {
               ["Perihal / keperluan", req.perihal],
               ["Tanggal dibutuhkan", fmtDate(req.tanggal)],
               ["Keterangan tambahan", req.keterangan || "-"],
-              ["Lampiran", req.lampiran.length ? req.lampiran.join(", ") : "Tidak ada"],
             ].map(([k, v]) => (
               <div key={k} className="grid gap-1 py-3 sm:grid-cols-3">
                 <dt className="text-slate-500">{k}</dt>
                 <dd className="font-semibold text-navy sm:col-span-2">{v}</dd>
               </div>
             ))}
+            <div className="grid gap-1 py-3 sm:grid-cols-3">
+              <dt className="text-slate-500">Lampiran</dt>
+              <dd className="font-semibold text-navy sm:col-span-2"><LampiranList items={req.lampiran} /></dd>
+            </div>
           </dl>
         )}
       </section>

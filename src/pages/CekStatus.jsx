@@ -1,21 +1,33 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ExclamationTriangleIcon, XCircleIcon } from "@heroicons/react/24/outline";
-import { useApp } from "../context/AppState";
-import { maskName } from "../lib/format";
+import { api } from "../lib/api";
 import StatusBadge from "../components/StatusBadge";
 import Timeline from "../components/Timeline";
 
 export default function CekStatus() {
-  const { requests } = useApp();
   const [params, setParams] = useSearchParams();
   const [input, setInput] = useState(params.get("no") || "");
+  const [hasil, setHasil] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const query = (params.get("no") || "").trim().toUpperCase();
-  const hasil = query ? requests.find((r) => r.id === query) : null;
 
   useEffect(() => {
     setInput(params.get("no") || "");
   }, [params]);
+
+  useEffect(() => {
+    setHasil(null);
+    setError("");
+    if (!query) return;
+    let batal = false;
+    setLoading(true);
+    api(`/cek-status/${encodeURIComponent(query)}`)
+      .then((d) => { if (!batal) { setHasil(d); setLoading(false); } })
+      .catch((e) => { if (!batal) { setError(e.status === 404 ? "tidak-ditemukan" : e.message); setLoading(false); } });
+    return () => { batal = true; };
+  }, [query]);
 
   const submit = (e) => {
     e.preventDefault();
@@ -44,11 +56,16 @@ export default function CekStatus() {
         </button>
       </form>
 
-      {query && !hasil && (
+      {loading && <p className="mt-8 text-sm text-slate-500">Mencari...</p>}
+
+      {error === "tidak-ditemukan" && (
         <div role="alert" className="mt-8 rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
           <p className="font-semibold">Nomor pengajuan tidak ditemukan.</p>
           <p className="mt-1">Periksa kembali penulisan nomor, misalnya TU-2026-00128.</p>
         </div>
+      )}
+      {error && error !== "tidak-ditemukan" && (
+        <p role="alert" className="mt-8 rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">{error}</p>
       )}
 
       {hasil && (
@@ -72,7 +89,7 @@ export default function CekStatus() {
             </div>
             <div>
               <dt className="text-slate-500">Pemohon</dt>
-              <dd className="font-semibold text-navy">{maskName(hasil.pemohon)}</dd>
+              <dd className="font-semibold text-navy">{hasil.pemohon}</dd>
             </div>
           </dl>
 
@@ -110,10 +127,6 @@ export default function CekStatus() {
           </Link>
         </section>
       )}
-
-      <p className="mt-10 text-xs text-slate-400">
-        Data demo yang bisa dicoba: {requests.slice(0, 4).map((r) => r.id).join(", ")}.
-      </p>
     </div>
   );
 }

@@ -11,6 +11,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { SERVICES, STEPS, ANNOUNCEMENTS } from "../data/content";
 import ServiceIcon from "../components/ServiceIcon";
+import PengumumanCard from "../components/PengumumanCard";
+import { useFetch, DEMO } from "../lib/api";
+
+const DEMO_PENGUMUMAN = ANNOUNCEMENTS.map((a) => ({ judul: a.title, kategori: a.tag, tanggal: a.date, ringkasan: a.excerpt }));
 
 const STEP_ICON = [ArrowRightEndOnRectangleIcon, DocumentTextIcon, ClockIcon, ArrowDownTrayIcon];
 
@@ -48,6 +52,8 @@ function HeroIllustration() {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { data: pengumuman, loading: memuat, error: galat } = useFetch("/pengumuman?limit=3");
+const daftarPengumuman = DEMO ? DEMO_PENGUMUMAN : pengumuman ?? [];
   const [nomor, setNomor] = useState("");
 
   const cek = (e) => {
@@ -179,19 +185,14 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {ANNOUNCEMENTS.map((a) => (
-            <article key={a.title} className="rounded-xl border border-line bg-white p-6">
-              <div className="flex items-center justify-between text-xs">
-                <span className="rounded-full bg-blue-50 px-3 py-1 font-semibold text-primary">{a.tag}</span>
-                <span className="text-slate-500">{a.date}</span>
-              </div>
-              <h3 className="mt-4 text-lg font-bold leading-snug text-navy">{a.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{a.excerpt}</p>
-              <p className="mt-4 text-xs text-slate-400">Contoh isi (data dummy)</p>
-            </article>
-          ))}
-        </div>
+      {!DEMO && memuat && <p className="mt-6 text-sm text-slate-500">Memuat data...</p>}
+      {!DEMO && galat && <p role="alert" className="mt-6 text-sm text-red-600">{galat}</p>}
+      {!DEMO && !memuat && !galat && daftarPengumuman.length === 0 && <p className="mt-6 text-sm text-slate-500">Belum ada pengumuman.</p>}
+
+      <div className="mt-8 grid gap-5 md:grid-cols-3">
+        {daftarPengumuman.map((p) => <PengumumanCard key={p.id ?? p.judul} p={p} />)}
+      </div>
+
       </section>
 
       {/* CEK STATUS */}

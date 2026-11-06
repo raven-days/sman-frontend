@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useApp } from "../context/AppState";
+import { useFetch } from "../lib/api";
 import { fmtDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
 
 const STATUSES = ["Menunggu", "Diverifikasi", "Perlu Perbaikan", "Disetujui", "Ditolak", "Selesai"];
 
 export default function PetugasList() {
-  const { requests } = useApp();
+  const { data, loading, error } = useFetch("/admin/pengajuan");
+  const requests = data ?? [];
   const [status, setStatus] = useState("");
   const [q, setQ] = useState("");
 
@@ -52,6 +53,7 @@ export default function PetugasList() {
       </div>
 
       <div className="mt-5 overflow-x-auto rounded-xl border border-line bg-white">
+        {error && <p role="alert" className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead className="bg-surface text-xs uppercase tracking-wide text-slate-500">
             <tr>
@@ -65,7 +67,8 @@ export default function PetugasList() {
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {rows.length === 0 && (
+            {loading && <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-500">Memuat data...</td></tr>}
+            {!loading && rows.length === 0 && (
               <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-500">Tidak ada pengajuan yang cocok.</td></tr>
             )}
             {rows.map((r) => (

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useApp } from "../context/AppState";
+import { api } from "../lib/api";
 import { fmtDate } from "../lib/format";
 import { FIELD_LABELS } from "../data/content";
 import StatusBadge from "../components/StatusBadge";
 import Timeline from "../components/Timeline";
+import LampiranList from "../components/LampiranList";
 import Modal from "../components/Modal";
 
 const NOTE_FIELDS = ["jenis", "perihal", "tanggal", "keterangan", "lampiran"];
@@ -12,16 +13,27 @@ const btn = "rounded-lg px-5 py-2.5 text-sm font-semibold";
 
 export default function PetugasDetail() {
   const { id } = useParams();
-  const { user, requests, dispatch } = useApp();
-  const req = requests.find((r) => r.id === id);
+  const [req, setReq] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [modal, setModal] = useState(null); // "perbaikan" | "tolak" | null
   const [umum, setUmum] = useState("");
   const [fields, setFields] = useState({});
   const [alasan, setAlasan] = useState("");
   const [err, setErr] = useState("");
   const [toast, setToast] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  if (!req) {
+  useEffect(() => {
+    let batal = false;
+    api(`/pengajuan/${id}`)
+      .then((d) => { if (!batal) { setReq(d); setLoading(false); } })
+      .catch(() => { if (!batal) { setNotFound(true); setLoading(false); } });
+    return () => { batal = true; };
+  }, [id]);
+
+  if (loading) return <p className="px-5 py-24 text-center text-sm text-slate-500">Memuat data...</p>;
+  if (notFound || !req) {
     return (
       <div className="mx-auto max-w-[600px] px-5 py-24 text-center">
         <h1 className="text-2xl font-extrabold text-navy">Pengajuan tidak ditemukan</h1>
@@ -30,11 +42,25 @@ export default function PetugasDetail() {
     );
   }
 
-  const go = (status, note = "", fieldNotes = {}) => {
-    dispatch({ type: "STATUS", id: req.id, status, by: user.name, note, fieldNotes });
-    setToast(`Status diubah menjadi ${status}.`);
-    setModal(null);
-    setUmum(""); setFields({}); setAlasan(""); setErr("");
+  const go = async (status, note = "", fieldNotes = {}) => {
+    setSaving(true);
+    setErr("");
+    setToast("");
+    try {
+      const res = await api(`/admin/pengajuan/${req.id}/status`, {
+        method: "POST",
+        body: { status, catatan: note, catatan_field: fieldNotes },
+      });
+      setReq(res);
+      setToast(`Status diubah menjadi ${status}.`);
+      setModal(null);
+      setUmum(""); setFields({}); setAlasan("");
+    } catch (e) {
+      if (modal) setErr(e.message);
+      else setToast(`Gagal: ${e.message}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const kirimPerbaikan = () => {
@@ -74,13 +100,16 @@ export default function PetugasDetail() {
             ["Perihal / keperluan", req.perihal],
             ["Tanggal dibutuhkan", fmtDate(req.tanggal)],
             ["Keterangan tambahan", req.keterangan || "-"],
-            ["Lampiran", req.lampiran.length ? req.lampiran.join(", ") : "Tidak ada"],
           ].map(([k, v]) => (
             <div key={k} className="grid gap-1 py-3 sm:grid-cols-3">
               <dt className="text-slate-500">{k}</dt>
               <dd className="font-semibold text-navy sm:col-span-2">{v}</dd>
             </div>
           ))}
+          <div className="grid gap-1 py-3 sm:grid-cols-3">
+            <dt className="text-slate-500">Lampiran</dt>
+            <dd className="font-semibold text-navy sm:col-span-2"><LampiranList items={req.lampiran} /></dd>
+          </div>
         </dl>
       </section>
 
@@ -88,7 +117,7 @@ export default function PetugasDetail() {
         <h2 className="text-lg font-bold text-navy">Tindakan</h2>
         {s === "Perlu Perbaikan" && <p className="mt-2 text-sm text-slate-600">Menunggu pemohon memperbaiki isian dan mengirim ulang.</p>}
         {(s === "Ditolak" || s === "Selesai") && <p className="mt-2 text-sm text-slate-600">Pengajuan ini sudah final.</p>}
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className={`mt-4 flex flex-wrap gap-3 ${saving ? "pointer-events-none opacity-60" : ""}`}>
           {s === "Menunggu" && <button type="button" onClick={() => go("Diverifikasi", "Berkas sudah diperiksa.")} className={`${btn} bg-primary text-white hover:bg-primary-dark`}>Verifikasi</button>}
           {s === "Diverifikasi" && <button type="button" onClick={() => go("Disetujui")} className={`${btn} bg-green-600 text-white hover:bg-green-700`}>Setujui</button>}
           {s === "Disetujui" && <button type="button" onClick={() => go("Selesai", "Hasil sudah dapat diambil di Tata Usaha.")} className={`${btn} bg-green-600 text-white hover:bg-green-700`}>Tandai Selesai</button>}

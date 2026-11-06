@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { useApp } from "../context/AppState";
+import { useFetch } from "../lib/api";
 import { fmtDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
 
 export default function PengajuanList() {
-  const { user, requests } = useApp();
-  const mine = requests.filter((r) => r.ownerRole === user.role);
+  const { data, loading, error } = useFetch("/pengajuan");
+  const mine = data ?? [];
   const perbaikan = mine.filter((r) => r.status === "Perlu Perbaikan");
 
   return (
@@ -20,6 +20,8 @@ export default function PengajuanList() {
           Ajukan Layanan
         </Link>
       </div>
+
+      {error && <p role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
 
       {perbaikan.length > 0 && (
         <p className="mt-6 flex items-center gap-2 rounded-lg border border-orange-300 bg-orange-50 px-4 py-3 text-sm text-orange-900">
@@ -41,7 +43,8 @@ export default function PengajuanList() {
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {mine.length === 0 && (
+            {loading && <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-500">Memuat data...</td></tr>}
+            {!loading && !error && mine.length === 0 && (
               <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-500">Belum ada pengajuan.</td></tr>
             )}
             {mine.map((r) => (

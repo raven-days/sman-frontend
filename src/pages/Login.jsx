@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { EyeIcon, EyeSlashIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ROLES } from "../data/content";
 import { useApp } from "../context/AppState";
+import { api, setToken, DEMO } from "../lib/api";
 
 export default function Login() {
   const { user, dispatch } = useApp();
@@ -17,17 +18,29 @@ export default function Login() {
   // Setelah masuk, kembali ke halaman yang tadi dituju (kalau ada).
   if (user) return <Navigate to={state?.from || "/akun"} replace />;
 
-  const submit = (e) => {
-    e.preventDefault();
-    if (!identitas.trim() || !sandi) {
-      setError("Isi identitas dan kata sandi terlebih dahulu.");
-      return;
-    }
-    setError("");
-    setLoading(true);
-    // Mode demo: belum ada autentikasi sungguhan.
+const submit = async (e) => {
+  e.preventDefault();
+  if (!identitas.trim() || !sandi) {
+    setError("Isi identitas dan kata sandi terlebih dahulu.");
+    return;
+  }
+  setError("");
+  setLoading(true);
+
+  if (DEMO) {
     setTimeout(() => dispatch({ type: "LOGIN", user: { role: role.id, name: role.name } }), 700);
-  };
+    return;
+  }
+
+  try {
+    const res = await api("/login", { method: "POST", body: { identitas: identitas.trim(), password: sandi } });
+    setToken(res.token);
+    dispatch({ type: "LOGIN", user: { role: res.user.role, name: res.user.name } });
+  } catch (err) {
+    setError(err.status === 429 ? "Terlalu banyak percobaan. Coba lagi sebentar." : err.message);
+    setLoading(false);
+  }
+};
 
   return (
     <div className="grid min-h-[calc(100vh-112px)] lg:grid-cols-2">
@@ -143,9 +156,11 @@ export default function Login() {
               Hubungi Tata Usaha
             </Link>
           </p>
-          <p className="mt-4 text-center text-xs text-slate-400">
-            Mode demo: isi identitas dan kata sandi apa saja. Menu yang terbuka mengikuti peran yang dipilih.
-          </p>
+          {DEMO && (
+            <p className="mt-4 text-center text-xs text-slate-400">
+              Mode demo: isi identitas dan kata sandi apa saja. Menu yang terbuka mengikuti peran yang dipilih.
+            </p>
+          )}
         </div>
       </main>
     </div>

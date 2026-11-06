@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { GURU, TENDIK } from "../data/pegawai";
-
-const TABS = [
-  { id: "guru", label: "Guru", data: GURU },
-  { id: "tendik", label: "Tenaga Kependidikan", data: TENDIK },
-];
+import { useFetch, DEMO } from "../lib/api";
 
 export default function Kepegawaian() {
+  const { data, loading, error } = useFetch("/pegawai");
+  const sumber = DEMO ? { guru: GURU, tendik: TENDIK } : data;
+  const TABS = [
+    { id: "guru", label: "Guru", data: sumber?.guru ?? [] },
+    { id: "tendik", label: "Tenaga Kependidikan", data: sumber?.tendik ?? [] },
+  ];
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState("");
   const tab = TABS.find((t) => t.id === params.get("tab")) || TABS[0];
@@ -49,6 +51,8 @@ export default function Kepegawaian() {
         />
       </div>
 
+{!DEMO && loading && <p className="mt-5 text-sm text-slate-500">Memuat data...</p>}
+{!DEMO && error && <p role="alert" className="mt-5 text-sm text-red-600">{error}</p>}
       <div className="mt-5 overflow-x-auto rounded-xl border border-line bg-white">
         <table className="w-full min-w-[520px] text-left text-sm">
           <thead className="bg-surface text-xs uppercase tracking-wide text-slate-500">

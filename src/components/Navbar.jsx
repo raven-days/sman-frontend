@@ -11,6 +11,8 @@ import {
 import logoSMA from "../assets/logo.jpg";
 import { SERVICES } from "../data/content";
 import { useApp } from "../context/AppState";
+import logoTutWuri from "../assets/logo-tutwuri.png";
+import logoJakarta from "../assets/logo-jakarta.png";
 
 /* ================= DATA ================= */
 const SITE = {
@@ -23,9 +25,9 @@ const SITE = {
 // Logo wajib. Isi `src` setelah file resmi didapat (import dari src/assets).
 // Selama `src` kosong, tampil kotak penanda.
 const LOGOS = [
+  { alt: "Logo Tut Wuri Handayani", label: "Tut Wuri Handayani", src: logoTutWuri },
+  { alt: "Logo +Jakarta", label: "+Jakarta", src: logoJakarta },
   { alt: "Logo SMA Negeri 104 Jakarta", src: logoSMA },
-  { alt: "Logo Tut Wuri Handayani", label: "Tut Wuri Handayani", src: null },
-  { alt: "Logo +Jakarta", label: "+Jakarta", src: null },
 ];
 
 const MENU = [
@@ -178,7 +180,7 @@ function Navbar() {
           <Link to="/" onClick={close} className="flex min-w-0 items-center gap-3">
             <div className="flex shrink-0 items-center gap-1.5">
               {LOGOS.map((logo, i) => (
-                <span key={logo.alt} className={i === 0 ? "" : "hidden md:block"}>
+                <span key={logo.alt} className={logo.mobile ? "" : "hidden md:block"}>
                   <LogoMark logo={logo} />
                 </span>
               ))}

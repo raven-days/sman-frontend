@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowDownTrayIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { SK_LIST } from "../data/sk";
+import { SK_LIST as SK_DEMO } from "../data/sk";
+import { useFetch, DEMO } from "../lib/api";
 
 export default function SuratKeputusan() {
+  const { data, loading, error } = useFetch("/sk");
+  const SK_LIST = DEMO ? SK_DEMO : data ?? [];
   const [q, setQ] = useState("");
   const [tahun, setTahun] = useState("");
   const years = [...new Set(SK_LIST.map((s) => s.tahun))].sort((a, b) => b - a);
@@ -26,6 +29,8 @@ export default function SuratKeputusan() {
         </p>
       )}
 
+      {!DEMO && loading && <p className="mt-5 text-sm text-slate-500">Memuat data...</p>}
+      {!DEMO && error && <p role="alert" className="mt-5 text-sm text-red-600">{error}</p>}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />

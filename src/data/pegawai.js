@@ -1,5 +1,4 @@
-// Dibuat dari file Excel Tata Usaha (Daftar Nama Tendik & Guru).
-// Hanya nama dan jabatan. Untuk memperbarui, ubah daftar ini.
+// OTOMATIS dari data/Daftar_Nama_Tendik_Guru.xlsx. Jangan diedit manual; ubah Excel lalu jalankan: npm run pegawai
 
 export const TENDIK = [
   {
@@ -66,7 +65,7 @@ export const GURU = [
     "jabatan": "Wakil Kepala Bid. Kesiswaan & Humas"
   },
   {
-    "nama": "Helmi Bawardi, S.Pd.",
+    "nama": "Helmi Bawardi, S.Pd .",
     "jabatan": "Wakil Kepala Bid. Sarpras & Adm"
   },
   {
@@ -134,7 +133,7 @@ export const GURU = [
     "jabatan": "Guru Matematika"
   },
   {
-    "nama": "Desi Ayuningsih Sugyianti, S.Kom.",
+    "nama": "Desi Ayuningsih Sugyianti , S.Kom.",
     "jabatan": "Guru Informatika"
   },
   {

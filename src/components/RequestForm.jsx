@@ -3,6 +3,7 @@ import { ExclamationTriangleIcon, ArrowUpTrayIcon, XMarkIcon, DocumentIcon } fro
 import { JENIS_SURAT } from "../data/content";
 
 const MAX_MB = 2;
+const MAX_FILES = 5;
 const OK_EXT = ["pdf", "jpg", "jpeg", "png"];
 const input =
   "h-12 w-full rounded-lg border border-line px-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-surface";
@@ -51,10 +52,12 @@ function Upload({ files, onChange }) {
       const ext = f.name.split(".").pop().toLowerCase();
       if (!OK_EXT.includes(ext)) bad.push(`${f.name}: jenis file harus PDF, JPG, atau PNG`);
       else if (f.size > MAX_MB * 1024 * 1024) bad.push(`${f.name}: ukuran melebihi ${MAX_MB} MB`);
-      else if (!files.includes(f.name)) ok.push(f.name);
+      else if (!files.some((x) => x.nama === f.name)) ok.push({ nama: f.name, file: f });
     }
+    const sisa = Math.max(MAX_FILES - files.length, 0);
+    if (ok.length > sisa) bad.push(`Maksimal ${MAX_FILES} file.`);
     setProblems(bad);
-    if (ok.length) onChange([...files, ...ok]);
+    if (ok.length) onChange([...files, ...ok.slice(0, sisa)]);
   };
 
   return (
@@ -70,7 +73,7 @@ function Upload({ files, onChange }) {
       >
         <ArrowUpTrayIcon className="h-6 w-6 text-primary" />
         <span className="font-semibold text-navy">Klik untuk memilih file atau seret ke sini</span>
-        <span className="text-xs">PDF, JPG, atau PNG, maksimal {MAX_MB} MB per file</span>
+        <span className="text-xs">PDF, JPG, atau PNG, maksimal {MAX_MB} MB per file (hingga {MAX_FILES} file)</span>
         <input
           id="lampiran"
           type="file"
@@ -91,13 +94,13 @@ function Upload({ files, onChange }) {
       {files.length > 0 && (
         <ul className="mt-3 space-y-2">
           {files.map((n) => (
-            <li key={n} className="flex items-center justify-between rounded-lg border border-line bg-white px-3 py-2 text-sm">
+            <li key={n.id ?? n.nama} className="flex items-center justify-between rounded-lg border border-line bg-white px-3 py-2 text-sm">
               <span className="flex items-center gap-2 text-slate-700">
-                <DocumentIcon className="h-4 w-4 text-primary" /> {n}
+                <DocumentIcon className="h-4 w-4 text-primary" /> {n.nama}
               </span>
               <button
                 type="button"
-                aria-label={`Hapus ${n}`}
+                aria-label={`Hapus ${n.nama}`}
                 onClick={() => onChange(files.filter((x) => x !== n))}
                 className="text-slate-400 hover:text-red-600"
               >
@@ -107,7 +110,6 @@ function Upload({ files, onChange }) {
           ))}
         </ul>
       )}
-      <p className="mt-2 text-xs text-slate-400">Mode demo: file tidak diunggah ke server, hanya namanya yang dicatat.</p>
     </div>
   );
 }
