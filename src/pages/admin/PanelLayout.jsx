@@ -1,11 +1,11 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { DEMO } from "../../lib/api";
 import { useApp } from "../../context/AppState";
 
 // menu: [{ to, label, icon, end?, izin?, admin? }]
-// izin: modul yang dibutuhkan. admin: khusus admin. Tanpa keduanya: semua petugas.
 export default function PanelLayout({ judul, menu }) {
   const { user } = useApp();
+  const { pathname } = useLocation();
   const boleh = (m) => {
     if (DEMO) return true;
     if (m.admin) return !!user?.is_admin;
@@ -24,7 +24,7 @@ export default function PanelLayout({ judul, menu }) {
               to={m.to}
               end={m.end}
               className={({ isActive }) =>
-                `flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                `flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
                   isActive ? "bg-primary text-white" : "text-navy hover:bg-blue-50"
                 }`
               }
@@ -40,7 +40,9 @@ export default function PanelLayout({ judul, menu }) {
             Mode demo: dashboard membutuhkan backend (Laravel). Data di halaman ini tidak tersedia pada versi demo.
           </p>
         )}
-        <Outlet />
+        <div key={pathname} className="anim-page-in">
+          <Outlet />
+        </div>
       </section>
     </div>
   );

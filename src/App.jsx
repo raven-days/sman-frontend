@@ -25,6 +25,7 @@ import AdminDashboard from "./pages/admin/DashboardAdmin";
 import KelolaSK from "./pages/admin/KelolaSK";
 import KelolaPegawai from "./pages/admin/KelolaPegawai";
 import KelolaPengumuman from "./pages/admin/KelolaPengumuman";
+import KelolaBanner from "./pages/admin/KelolaBanner";
 import Pengumuman from "./pages/Pengumuman";
 import PengumumanDetail from "./pages/PengumumanDetail";
 import GantiSandi from "./pages/GantiSandi";
@@ -46,6 +47,15 @@ function ScrollManager() {
   return null;
 }
 
+
+// Animasi halus saat pindah halaman. Dashboard (/admin, /tu) memakai satu kunci
+// supaya menu samping tidak ikut dimuat ulang; isinya dianimasikan di PanelLayout.
+function PageTransition({ children }) {
+  const { pathname } = useLocation();
+  const kunci = /^\/(admin|tu)(\/|$)/.test(pathname) ? "panel" : pathname;
+  return <div key={kunci} className="anim-page-in">{children}</div>;
+}
+
 const SEMUA = ["siswa", "guru", "tu"];
 
 export default function App() {
@@ -55,6 +65,7 @@ export default function App() {
       <div className="flex min-h-screen flex-col">
         <Navbar />
         <div className="flex-1">
+          <PageTransition>
           <Routes>
             {/* Halaman publik */}
             <Route path="/" element={<Home />} />
@@ -83,6 +94,7 @@ export default function App() {
               <Route path="sk" element={<RequireRole izin="sk"><KelolaSK /></RequireRole>} />
               <Route path="pegawai" element={<RequireRole izin="pegawai"><KelolaPegawai /></RequireRole>} />
               <Route path="pengumuman" element={<RequireRole izin="pengumuman"><KelolaPengumuman /></RequireRole>} />
+              <Route path="banner" element={<RequireRole izin="banner"><KelolaBanner /></RequireRole>} />
             </Route>
 
             {/* Dashboard admin (khusus admin) */}
@@ -100,6 +112,7 @@ export default function App() {
             {/* Halaman lain (denah, pengumuman, dst.) masih placeholder */}
             <Route path="*" element={<ComingSoon />} />
           </Routes>
+          </PageTransition>
         </div>
         <Footer />
       </div>

@@ -27,6 +27,9 @@ const AKSI = [
   ["konfirmasi_sandi", "Konfirmasi sandi"],
   ["konfirmasi_sandi_gagal", "Konfirmasi sandi gagal"],
   ["akun_impor", "Impor akun"],
+  ["banner_tambah", "Tambah banner"],
+  ["banner_ubah", "Ubah banner"],
+  ["banner_hapus", "Hapus banner"],
 ];
 
 export default function KelolaAudit() {

@@ -9,12 +9,14 @@ import { galatPerKolom, fokusSalah } from "../../lib/validasi";
 import Field, { inputCls } from "../../components/Field";
 import Modal from "../../components/Modal";
 import ImporAkun from "./ImporAkun";
+import { DaftarBarisSkeleton } from "../../components/Skeleton";
 
 const MODUL = [
   ["pengajuan", "Antrian pengajuan"],
   ["sk", "Surat Keputusan"],
   ["pegawai", "Data pegawai"],
   ["pengumuman", "Pengumuman"],
+  ["banner", "Banner beranda"],
 ];
 const SEMUA_MODUL = MODUL.map(([k]) => k);
 const labelRole = (id) => ROLES.find((r) => r.id === id)?.label ?? id;
@@ -244,7 +246,7 @@ export default function KelolaAkun() {
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {loading && <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-500">Memuat data...</td></tr>}
+            {loading && <tr><td colSpan={6} className="px-4 py-6"><DaftarBarisSkeleton n={4} /></td></tr>}
             {!loading && !error && baris.length === 0 && (
               <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-500">Tidak ada akun.</td></tr>
             )}

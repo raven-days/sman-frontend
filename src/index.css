@@ -65,3 +65,105 @@ h3 {
   }
   html { scroll-behavior: auto; }
 }
+
+@layer components {
+  /* ---------- Keyframes ---------- */
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes shimmer {
+    to { transform: translateX(100%); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  @keyframes fade-up-sm {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ---------- Muncul saat di-scroll (komponen Reveal) ---------- */
+  .reveal { opacity: 0; }
+  .reveal-in {
+    animation: reveal-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  /* ---------- Transisi pindah halaman ---------- */
+  .anim-page-in { animation: page-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* ---------- Hero muncul bertahap: anak langsung muncul berurutan ---------- */
+  .hero-stagger > * { animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .hero-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero-stagger > *:nth-child(2) { animation-delay: 0.15s; }
+  .hero-stagger > *:nth-child(3) { animation-delay: 0.25s; }
+  .hero-stagger > *:nth-child(4) { animation-delay: 0.35s; }
+  .hero-stagger > *:nth-child(5) { animation-delay: 0.45s; }
+  .hero-illus { animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+
+  /* ---------- Hover kartu & umpan balik tekan ---------- */
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  @media (hover: hover) {
+    .card-hover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px -14px rgb(18 57 95 / 0.28);
+      border-color: #c9dcf0;
+    }
+  }
+  .press { transition: transform 0.12s ease, background-color 0.15s ease, filter 0.15s ease; }
+  .press:active { transform: scale(0.97); }
+
+  /* ---------- Skeleton loading ---------- */
+  .skeleton { position: relative; overflow: hidden; background: #e8edf3; }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+
+  /* ---------- Umpan balik validasi form (tanpa ubah JSX) ---------- */
+  input[aria-invalid="true"],
+  select[aria-invalid="true"],
+  textarea[aria-invalid="true"] { animation: shake 0.3s ease-in-out; }
+  p[id$="-err"] { animation: fade-up-sm 0.2s ease-out both; }
+
+  /* ---------- Modal & latar gelapnya (tanpa ubah Modal.jsx) ---------- */
+  [role="dialog"][aria-modal="true"],
+  [role="alertdialog"][aria-modal="true"] {
+    animation: dialog-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  div.fixed:has(> [aria-modal="true"]) { animation: backdrop-in 0.15s ease-out both; }
+
+  /* ---------- Animasi dimatikan ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; }
+    .reveal-in,
+    .anim-page-in,
+    .hero-stagger > *,
+    .hero-illus,
+    input[aria-invalid="true"],
+    select[aria-invalid="true"],
+    textarea[aria-invalid="true"],
+    p[id$="-err"],
+    [role="dialog"][aria-modal="true"],
+    [role="alertdialog"][aria-modal="true"],
+    div.fixed:has(> [aria-modal="true"]),
+    .skeleton::after { animation: none !important; }
+    .card-hover,
+    .press { transition: none; }
+    .card-hover:hover,
+    .press:active { transform: none; }
+  }
+}

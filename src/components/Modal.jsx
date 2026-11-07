@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 export default function Modal({ title, onClose, children, footer }) {
   useEffect(() => {
@@ -7,7 +8,7 @@ export default function Modal({ title, onClose, children, footer }) {
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
-  return (
+  return createPortal (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
@@ -22,6 +23,7 @@ export default function Modal({ title, onClose, children, footer }) {
         <div className="mt-4">{children}</div>
         {footer && <div className="mt-6 flex justify-end gap-3">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

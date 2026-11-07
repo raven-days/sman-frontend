@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useFetch } from "../../lib/api";
 import { useApp } from "../../context/AppState";
+import CountUp from "../../components/CountUp";
 
 export default function TuDashboard() {
   const { user } = useApp();
@@ -28,7 +29,7 @@ export default function TuDashboard() {
           const isi = (
             <>
               <p className="text-sm text-slate-600">{k.label}</p>
-              <p className="mt-2 text-3xl font-extrabold text-navy">{loading ? "…" : k.nilai ?? "-"}</p>
+              <p className="mt-2 text-3xl font-extrabold text-navy">{loading ? "…" : <CountUp nilai={k.nilai} />}</p>
             </>
           );
           return k.to ? (

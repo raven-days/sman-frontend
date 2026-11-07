@@ -3,6 +3,7 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useFetch } from "../lib/api";
 import { fmtDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
+import { DaftarBarisSkeleton } from "../components/Skeleton";
 
 export default function PengajuanList() {
   const { data, loading, error } = useFetch("/pengajuan");
@@ -43,7 +44,7 @@ export default function PengajuanList() {
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {loading && <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-500">Memuat data...</td></tr>}
+            {loading && <tr><td colSpan={6} className="px-4 py-6"><DaftarBarisSkeleton n={4} /></td></tr>}
             {!loading && !error && mine.length === 0 && (
               <tr><td colSpan={6} className="px-4 py-10 text-center text-slate-500">Belum ada pengajuan.</td></tr>
             )}

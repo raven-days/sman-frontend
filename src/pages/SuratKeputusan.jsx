@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowDownTrayIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { SK_LIST as SK_DEMO } from "../data/sk";
 import { useFetch, DEMO } from "../lib/api";
+import { DaftarBarisSkeleton } from "../components/Skeleton";
 
 export default function SuratKeputusan() {
   const { data, loading, error } = useFetch("/sk");
@@ -29,7 +30,7 @@ export default function SuratKeputusan() {
         </p>
       )}
 
-      {!DEMO && loading && <p className="mt-5 text-sm text-slate-500">Memuat data...</p>}
+      {!DEMO && loading && <DaftarBarisSkeleton n={5} className="mt-5" />}
       {!DEMO && error && <p role="alert" className="mt-5 text-sm text-red-600">{error}</p>}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">

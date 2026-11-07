@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { GURU, TENDIK } from "../data/pegawai";
 import { useFetch, DEMO } from "../lib/api";
+import { DaftarBarisSkeleton } from "../components/Skeleton";
 
 export default function Kepegawaian() {
   const { data, loading, error } = useFetch("/pegawai");
@@ -51,7 +52,7 @@ export default function Kepegawaian() {
         />
       </div>
 
-{!DEMO && loading && <p className="mt-5 text-sm text-slate-500">Memuat data...</p>}
+{!DEMO && loading && <DaftarBarisSkeleton n={6} className="mt-5" />}
 {!DEMO && error && <p role="alert" className="mt-5 text-sm text-red-600">{error}</p>}
       <div className="mt-5 overflow-x-auto rounded-xl border border-line bg-white">
         <table className="w-full min-w-[520px] text-left text-sm">

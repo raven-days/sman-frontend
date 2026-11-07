@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { useFetch } from "../../lib/api";
+import CountUp from "../../components/CountUp";
 
 function JumlahAkun({ label, role }) {
   const { data, loading } = useFetch(`/admin/akun?role=${role}`);
   return (
-    <Link to="/admin/akun" className="rounded-xl border border-line bg-white p-5 hover:shadow-md">
+    <Link to="/admin/akun" className="card-hover rounded-xl border border-line bg-white p-5">
       <p className="text-sm text-slate-600">{label}</p>
-      <p className="mt-2 text-3xl font-extrabold text-navy">{loading ? "…" : data?.total ?? "-"}</p>
+      <p className="mt-2 text-3xl font-extrabold text-navy">{loading ? "…" : <CountUp nilai={data?.total} />}</p>
     </Link>
   );
 }
@@ -31,7 +32,7 @@ export default function DashboardAdmin() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {TAUTAN.map((t) => (
-          <Link key={t.to} to={t.to} className="rounded-xl border border-line bg-white p-5 hover:shadow-md">
+          <Link key={t.to} to={t.to} className="card-hover rounded-xl border border-line bg-white p-5">
             <span className="block font-bold text-navy">{t.judul}</span>
             <span className="mt-1 block text-sm text-slate-600">{t.ket}</span>
           </Link>
