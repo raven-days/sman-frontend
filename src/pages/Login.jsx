@@ -35,7 +35,7 @@ const submit = async (e) => {
   try {
     const res = await api("/login", { method: "POST", body: { identitas: identitas.trim(), password: sandi } });
     setToken(res.token);
-    dispatch({ type: "LOGIN", user: { role: res.user.role, name: res.user.name } });
+    dispatch({ type: "LOGIN", user: res.user });
   } catch (err) {
     setError(err.status === 429 ? "Terlalu banyak percobaan. Coba lagi sebentar." : err.message);
     setLoading(false);

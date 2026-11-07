@@ -10,7 +10,8 @@ export default function Akun() {
   const role = ROLES.find((r) => r.id === user.role);
   const access = ACCESS[user.role];
   const isTU = user.role === "tu";
-  const { data } = useFetch(isTU ? "/admin/pengajuan" : "/pengajuan");
+  const bolehAntrian = isTU && (user.izin || []).includes("pengajuan");
+  const { data } = useFetch(isTU ? (bolehAntrian ? "/admin/pengajuan" : null) : "/pengajuan");
   const daftar = data ?? [];
   const perbaikan = daftar.filter((r) => r.status === "Perlu Perbaikan").length;
   const antrian = daftar.filter(
@@ -29,24 +30,35 @@ export default function Akun() {
         Masuk sebagai <b>{role?.label}</b>. Menu yang terbuka mengikuti hak
         akses peran ini.
       </p>
+      <Link to="/ganti-sandi" className="mt-2 inline-block text-sm font-semibold text-primary">
+        Ganti kata sandi
+      </Link>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {isTU ? (
           <>
             <Link
-              to="/admin"
+              to="/tu"
               className="flex items-center justify-between rounded-xl border border-line bg-white p-5 hover:shadow-md"
             >
               <span>
-                <span className="block font-bold text-navy">
-                  Dashboard Admin
-                </span>
-                <span className="text-sm text-slate-600">
-                  Kelola SK dan data website
-                </span>
+                <span className="block font-bold text-navy">Dashboard Staf TU</span>
+                <span className="text-sm text-slate-600">Kelola SK, pengumuman, dan data pegawai</span>
               </span>
               <ArrowRightIcon className="h-5 w-5 text-primary" />
             </Link>
+            {user.is_admin && (
+              <Link
+                to="/admin"
+                className="flex items-center justify-between rounded-xl border border-line bg-white p-5 hover:shadow-md"
+              >
+                <span>
+                  <span className="block font-bold text-navy">Dashboard Admin</span>
+                  <span className="text-sm text-slate-600">Kelola akun dan log audit</span>
+                </span>
+                <ArrowRightIcon className="h-5 w-5 text-primary" />
+              </Link>
+            )}
             <Link
               to="/petugas"
               className="flex items-center justify-between rounded-xl border border-line bg-white p-5 hover:shadow-md"
@@ -56,7 +68,7 @@ export default function Akun() {
                   Antrian Pengajuan
                 </span>
                 <span className="text-sm text-slate-600">
-                  {antrian} menunggu diproses
+                      {bolehAntrian ? `${antrian} menunggu diproses` : "Tidak ada izin untuk modul ini"}
                 </span>
               </span>
               <ArrowRightIcon className="h-5 w-5 text-primary" />

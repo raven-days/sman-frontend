@@ -14,6 +14,7 @@ import { useApp } from "../context/AppState";
 import { useToast } from "../context/Toast";
 import logoTutWuri from "../assets/logo-tutwuri.png";
 import logoJakarta from "../assets/logo-jakarta.png";
+import { keluarDiServer } from "../lib/api";
 
 /* ================= DATA ================= */
 const SITE = {
@@ -157,6 +158,7 @@ function Navbar() {
 
   const logout = () => {
     close();
+    keluarDiServer();            // harus sebelum LOGOUT, supaya token masih terkirim
     dispatch({ type: "LOGOUT" });
     toast.info("Anda telah keluar.");
     navigate("/");

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import RequireRole from "./components/RequireRole";
@@ -19,12 +19,17 @@ import PetugasList from "./pages/PetugasList";
 import PetugasDetail from "./pages/PetugasDetail";
 import ComingSoon from "./pages/ComingSoon";
 import AdminLayout from "./pages/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/Dashboard";
+import TuLayout from "./pages/admin/TuLayout";
+import TuDashboard from "./pages/admin/Dashboard";
+import AdminDashboard from "./pages/admin/DashboardAdmin";
 import KelolaSK from "./pages/admin/KelolaSK";
 import KelolaPegawai from "./pages/admin/KelolaPegawai";
 import KelolaPengumuman from "./pages/admin/KelolaPengumuman";
 import Pengumuman from "./pages/Pengumuman";
 import PengumumanDetail from "./pages/PengumumanDetail";
+import GantiSandi from "./pages/GantiSandi";
+import KelolaAudit from "./pages/admin/KelolaAudit";
+import KelolaAkun from "./pages/admin/KelolaAkun";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -66,17 +71,31 @@ export default function App() {
 
             {/* Perlu masuk */}
             <Route path="/akun" element={<RequireRole roles={SEMUA}><Akun /></RequireRole>} />
+            <Route path="/ganti-sandi" element={<RequireRole roles={SEMUA}><GantiSandi /></RequireRole>} />
             <Route path="/pengajuan" element={<RequireRole roles={["siswa", "guru"]}><PengajuanList /></RequireRole>} />
             <Route path="/pengajuan/:id" element={<RequireRole roles={SEMUA}><PengajuanDetail /></RequireRole>} />
-            <Route path="/petugas" element={<RequireRole roles={["tu"]}><PetugasList /></RequireRole>} />
-            <Route path="/petugas/:id" element={<RequireRole roles={["tu"]}><PetugasDetail /></RequireRole>} />
+            <Route path="/petugas" element={<RequireRole roles={["tu"]} izin="pengajuan"><PetugasList /></RequireRole>} />
+            <Route path="/petugas/:id" element={<RequireRole roles={["tu"]} izin="pengajuan"><PetugasDetail /></RequireRole>} />
 
-            <Route path="/admin" element={<RequireRole roles={["tu"]}><AdminLayout /></RequireRole>}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="sk" element={<KelolaSK />} />
-              <Route path="pegawai" element={<KelolaPegawai />} />
-              <Route path="pengumuman" element={<KelolaPengumuman />} />
+            {/* Dashboard staf TU */}
+            <Route path="/tu" element={<RequireRole roles={["tu"]}><TuLayout /></RequireRole>}>
+              <Route index element={<TuDashboard />} />
+              <Route path="sk" element={<RequireRole izin="sk"><KelolaSK /></RequireRole>} />
+              <Route path="pegawai" element={<RequireRole izin="pegawai"><KelolaPegawai /></RequireRole>} />
+              <Route path="pengumuman" element={<RequireRole izin="pengumuman"><KelolaPengumuman /></RequireRole>} />
             </Route>
+
+            {/* Dashboard admin (khusus admin) */}
+            <Route path="/admin" element={<RequireRole roles={["tu"]} admin><AdminLayout /></RequireRole>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="akun" element={<KelolaAkun />} />
+              <Route path="audit" element={<KelolaAudit />} />
+            </Route>
+
+            {/* Alamat lama: arahkan ke alamat baru */}
+            <Route path="/admin/sk" element={<Navigate to="/tu/sk" replace />} />
+            <Route path="/admin/pegawai" element={<Navigate to="/tu/pegawai" replace />} />
+            <Route path="/admin/pengumuman" element={<Navigate to="/tu/pengumuman" replace />} />
 
             {/* Halaman lain (denah, pengumuman, dst.) masih placeholder */}
             <Route path="*" element={<ComingSoon />} />

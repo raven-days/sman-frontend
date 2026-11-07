@@ -63,7 +63,7 @@ export function AppProvider({ children }) {
   // Cek token saat halaman dibuka (kalau ditolak, api() mengirim event di atas)
   useEffect(() => {
     if (DEMO || !state.user) return;
-    api("/me").catch(() => {});
+    api("/me").then((r) => dispatch({ type: "LOGIN", user: r.user })).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
