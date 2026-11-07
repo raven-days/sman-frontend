@@ -20,6 +20,7 @@ import Reveal from "../components/Reveal";
 import { DaftarKartuSkeleton } from "../components/Skeleton";
 import { useFetch, DEMO } from "../lib/api";
 import HeroUtama from "../components/HeroUtama";
+import FaqAccordion from "../components/FaqAccordion";
 
 const DEMO_PENGUMUMAN = ANNOUNCEMENTS.map((a) => ({
   judul: a.title,
@@ -48,7 +49,8 @@ export default function Home() {
   const { data: hero } = useFetch(DEMO ? null : "/hero");
 
   const daftarPengumuman = DEMO ? DEMO_PENGUMUMAN : pengumuman ?? [];
-
+  const { data: faq } = useFetch("/faq?limit=5");
+  const daftarFaq = DEMO ? [] : faq ?? [];
   const [nomor, setNomor] = useState("");
 
   const cek = (e) => {
@@ -252,6 +254,24 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* FAQ */}
+      {daftarFaq.length > 0 && (
+        <section className="bg-surface">
+          <div className="mx-auto max-w-[900px] px-5 py-16 sm:px-8">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Pertanyaan umum</p>
+            <div className="mt-2 flex items-end justify-between gap-3">
+              <h2 className="text-2xl font-bold text-navy sm:text-3xl">Sering Ditanyakan</h2>
+              <Link to="/kontak" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                Lihat semua <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="mt-8">
+              <FaqAccordion items={daftarFaq} />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CEK STATUS */}
       <section className="bg-primary">

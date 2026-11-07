@@ -31,6 +31,7 @@ import PengumumanDetail from "./pages/PengumumanDetail";
 import GantiSandi from "./pages/GantiSandi";
 import KelolaAudit from "./pages/admin/KelolaAudit";
 import KelolaAkun from "./pages/admin/KelolaAkun";
+import KelolaKontak from "./pages/admin/KelolaKontak";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -95,6 +96,7 @@ export default function App() {
               <Route path="pegawai" element={<RequireRole izin="pegawai"><KelolaPegawai /></RequireRole>} />
               <Route path="pengumuman" element={<RequireRole izin="pengumuman"><KelolaPengumuman /></RequireRole>} />
               <Route path="banner" element={<RequireRole izin="banner"><KelolaBanner /></RequireRole>} />
+   <Route path="kontak" element={<RequireRole izin="kontak"><KelolaKontak /></RequireRole>} />
             </Route>
 
             {/* Dashboard admin (khusus admin) */}
@@ -108,6 +110,7 @@ export default function App() {
             <Route path="/admin/sk" element={<Navigate to="/tu/sk" replace />} />
             <Route path="/admin/pegawai" element={<Navigate to="/tu/pegawai" replace />} />
             <Route path="/admin/pengumuman" element={<Navigate to="/tu/pengumuman" replace />} />
+              <Route path="kontak" element={<RequireRole izin="kontak"><KelolaKontak /></RequireRole>} />
 
             {/* Halaman lain (denah, pengumuman, dst.) masih placeholder */}
             <Route path="*" element={<ComingSoon />} />

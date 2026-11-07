@@ -1,4 +1,4 @@
-import { Squares2X2Icon, UserGroupIcon, ShieldCheckIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
+import { Squares2X2Icon, ArrowsRightLeftIcon, UserGroupIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import PanelLayout from "./PanelLayout";
 
 const MENU = [

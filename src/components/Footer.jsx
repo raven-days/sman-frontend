@@ -1,13 +1,6 @@
 import { Link } from "react-router-dom";
 import { MapPinIcon, PhoneIcon, EnvelopeIcon, ClockIcon } from "@heroicons/react/24/outline";
-import { CONTACT } from "../data/content";
-
-const contacts = [
-  { icon: MapPinIcon, text: CONTACT.alamat },
-  { icon: PhoneIcon, text: CONTACT.telp, href: `tel:${CONTACT.telp.replace(/[^0-9+]/g, "")}` },
-  { icon: EnvelopeIcon, text: CONTACT.email, href: `mailto:${CONTACT.email}` },
-  { icon: ClockIcon, text: `Jam layanan: ${CONTACT.jam}` },
-];
+import { useKontak, ringkasJam } from "../lib/useKontak";
 
 const quick = [
   { label: "Daftar Layanan", to: "/layanan" },
@@ -18,6 +11,16 @@ const quick = [
 ];
 
 export default function Footer() {
+  const k = useKontak();
+  const jam = ringkasJam(k);
+
+  const contacts = [
+    k.alamat && { icon: MapPinIcon, text: k.alamat },
+    k.telepon && { icon: PhoneIcon, text: k.telepon, href: `tel:${k.telepon.replace(/[^0-9+]/g, "")}` },
+    k.email && { icon: EnvelopeIcon, text: k.email, href: `mailto:${k.email}` },
+    jam && { icon: ClockIcon, text: `Jam layanan: ${jam}` },
+  ].filter(Boolean);
+
   return (
     <footer className="bg-navy text-blue-100">
       <div className="mx-auto grid max-w-[1200px] gap-10 px-5 py-12 sm:px-8 md:grid-cols-3">
