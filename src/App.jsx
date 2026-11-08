@@ -32,6 +32,8 @@ import GantiSandi from "./pages/GantiSandi";
 import KelolaAudit from "./pages/admin/KelolaAudit";
 import KelolaAkun from "./pages/admin/KelolaAkun";
 import KelolaKontak from "./pages/admin/KelolaKontak";
+import LupaKataSandi from "./pages/LupaKataSandi";
+import PermintaanReset from "./pages/admin/PermintaanReset";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -71,6 +73,7 @@ export default function App() {
             {/* Halaman publik */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/lupa-kata-sandi" element={<LupaKataSandi />} />
             <Route path="/cek-status" element={<CekStatus />} />
             <Route path="/layanan" element={<LayananList />} />
             <Route path="/layanan/kepegawaian" element={<Kepegawaian />} />
@@ -103,6 +106,7 @@ export default function App() {
             <Route path="/admin" element={<RequireRole roles={["tu"]} admin><AdminLayout /></RequireRole>}>
               <Route index element={<AdminDashboard />} />
               <Route path="akun" element={<KelolaAkun />} />
+              <Route path="permintaan-reset" element={<PermintaanReset />} />
               <Route path="audit" element={<KelolaAudit />} />
             </Route>
 

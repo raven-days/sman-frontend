@@ -119,6 +119,9 @@ export default function CekStatus() {
           )}
 
           <div className="mt-7">
+            {hasil.pengambilan && (
+              <p className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{hasil.pengambilan}</p>
+            )}
             <Timeline history={hasil.history} status={hasil.status} showDetail={false} />
           </div>
 

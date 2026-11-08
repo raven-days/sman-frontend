@@ -10,6 +10,7 @@ import Timeline from "../components/Timeline";
 import LampiranList from "../components/LampiranList";
 import RequestForm, { validate } from "../components/RequestForm";
 import Forbidden from "./Forbidden";
+import HasilPengajuan from "../components/HasilPengajuan";
 
 const pick = (r) => ({ jenis: r.jenis, perihal: r.perihal, tanggal: r.tanggal, keterangan: r.keterangan, lampiran: r.lampiran });
 
@@ -124,6 +125,7 @@ export default function PengajuanDetail() {
       )}
 
       <section className="mt-6 rounded-xl border border-line bg-white p-6">
+      <HasilPengajuan req={req} />
         <h2 className="text-lg font-bold text-navy">{perbaikan ? "Perbaiki isian" : "Data pengajuan"}</h2>
         {perbaikan ? (
           <div className="mt-5">

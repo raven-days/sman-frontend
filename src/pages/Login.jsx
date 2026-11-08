@@ -5,6 +5,80 @@ import { ROLES } from "../data/content";
 import { useApp } from "../context/AppState";
 import { api, setToken, DEMO } from "../lib/api";
 
+/* Ornamen bunga Kawung */
+function MedaliKawung({ className }) {
+  return (
+    <svg
+      viewBox="0 0 200 200"
+      className={className}
+      fill="none"
+      aria-hidden="true"
+    >
+      <g stroke="#d6bb7e" strokeWidth="1.2" strokeOpacity=".5">
+        <ellipse cx="100" cy="52" rx="30" ry="48" />
+        <ellipse cx="100" cy="148" rx="30" ry="48" />
+        <ellipse cx="52" cy="100" rx="48" ry="30" />
+        <ellipse cx="148" cy="100" rx="48" ry="30" />
+      </g>
+
+      <g fill="#b8583a" fillOpacity=".92">
+        <ellipse cx="100" cy="76" rx="14" ry="24" />
+        <ellipse cx="100" cy="124" rx="14" ry="24" />
+        <ellipse cx="76" cy="100" rx="24" ry="14" />
+        <ellipse cx="124" cy="100" rx="24" ry="14" />
+      </g>
+
+      <g fill="#d6bb7e" fillOpacity=".8">
+        <circle cx="100" cy="28" r="3" />
+        <circle cx="100" cy="172" r="3" />
+        <circle cx="28" cy="100" r="3" />
+        <circle cx="172" cy="100" r="3" />
+        <circle cx="100" cy="100" r="4" />
+      </g>
+    </svg>
+  );
+}
+
+/* Motif batik Kawung berulang */
+function TeksturKawung({ id, className }) {
+  return (
+    <svg className={className} aria-hidden="true">
+      <defs>
+        <pattern
+          id={id}
+          width="72"
+          height="72"
+          patternUnits="userSpaceOnUse"
+        >
+          <g
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          >
+            <ellipse cx="36" cy="18" rx="11" ry="18" />
+            <ellipse cx="36" cy="54" rx="11" ry="18" />
+            <ellipse cx="18" cy="36" rx="18" ry="11" />
+            <ellipse cx="54" cy="36" rx="18" ry="11" />
+          </g>
+
+          <circle
+            cx="36"
+            cy="36"
+            r="2"
+            fill="currentColor"
+          />
+        </pattern>
+      </defs>
+
+      <rect
+        width="100%"
+        height="100%"
+        fill={`url(#${id})`}
+      />
+    </svg>
+  );
+}
+
 export default function Login() {
   const { user, dispatch } = useApp();
   const { state } = useLocation();
@@ -44,7 +118,18 @@ const submit = async (e) => {
 
   return (
     <div className="grid min-h-[calc(100vh-112px)] lg:grid-cols-2">
-      <aside className="hidden flex-col justify-center bg-navy px-14 text-white lg:flex">
+      <aside className="relative isolate hidden flex-col justify-center overflow-hidden bg-navy px-14 text-white lg:flex">
+
+  {/* Motif batik Kawung sebagai latar */}
+  <TeksturKawung
+    id="kawung-login"
+    className="pointer-events-none absolute inset-0 z-0 h-full w-full text-[#d6bb7e] opacity-[0.14]"
+  />
+
+  {/* Ornamen bunga Kawung di pojok kanan atas */}
+  <MedaliKawung
+    className="pointer-events-none absolute -right-20 -top-24 z-0 h-[340px] w-[340px]"
+  />
         <p className="text-xs font-bold uppercase tracking-widest text-blue-300">Portal layanan resmi</p>
         <h1 className="mt-4 text-4xl font-extrabold leading-tight">
           Layanan Tata Usaha

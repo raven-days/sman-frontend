@@ -10,6 +10,7 @@ import StatusBadge from "../components/StatusBadge";
 import Timeline from "../components/Timeline";
 import LampiranList from "../components/LampiranList";
 import Modal from "../components/Modal";
+import PanelHasil from "../components/PanelHasil";
 
 const NOTE_FIELDS = ["jenis", "perihal", "tanggal", "keterangan", "lampiran"];
 const btn = "rounded-lg px-5 py-2.5 text-sm font-semibold";
@@ -114,6 +115,7 @@ export default function PetugasDetail() {
         </dl>
       </section>
 
+      {(s === "Disetujui" || s === "Selesai") && <PanelHasil req={req} onUpdate={setReq} />}
       <section className="mt-6 rounded-xl border border-line bg-white p-6">
         <h2 className="text-lg font-bold text-navy">Tindakan</h2>
         {s === "Perlu Perbaikan" && <p className="mt-2 text-sm text-slate-600">Menunggu pemohon memperbaiki isian dan mengirim ulang.</p>}
@@ -121,7 +123,18 @@ export default function PetugasDetail() {
         <div className={`mt-4 flex flex-wrap gap-3 ${saving ? "pointer-events-none opacity-60" : ""}`}>
           {s === "Menunggu" && <button type="button" onClick={() => go("Diverifikasi", "Berkas sudah diperiksa.")} className={`${btn} bg-primary text-white hover:bg-primary-dark`}>Verifikasi</button>}
           {s === "Diverifikasi" && <button type="button" onClick={() => go("Disetujui")} className={`${btn} bg-green-600 text-white hover:bg-green-700`}>Setujui</button>}
-          {s === "Disetujui" && <button type="button" onClick={() => go("Selesai", "Hasil sudah dapat diambil di Tata Usaha.")} className={`${btn} bg-green-600 text-white hover:bg-green-700`}>Tandai Selesai</button>}
+          {s === "Disetujui" && (
+            <button
+              type="button"
+              onClick={() => {
+                if (!req.hasil?.length && !req.pengambilan) return toast.warning("Isi dokumen hasil atau petunjuk pengambilan dulu.");
+                go("Selesai");
+              }}
+              className={`${btn} bg-green-600 text-white hover:bg-green-700`}
+            >
+              Tandai Selesai
+            </button>
+          )}
           {(s === "Menunggu" || s === "Diverifikasi") && (
             <>
               <button type="button" onClick={() => { setErr(""); setModal("perbaikan"); }} className={`${btn} border border-orange-300 bg-orange-50 text-orange-800 hover:bg-orange-100`}>Minta Perbaikan</button>
