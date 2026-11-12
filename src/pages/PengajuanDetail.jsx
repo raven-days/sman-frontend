@@ -11,8 +11,9 @@ import LampiranList from "../components/LampiranList";
 import RequestForm, { validate } from "../components/RequestForm";
 import Forbidden from "./Forbidden";
 import HasilPengajuan from "../components/HasilPengajuan";
+import FormGuru, { validateGuru, barisData, dataSiap, tambahData } from "../components/FormGuru";
 
-const pick = (r) => ({ jenis: r.jenis, perihal: r.perihal, tanggal: r.tanggal, keterangan: r.keterangan, lampiran: r.lampiran });
+const pick = (r) => ({ jenis: r.jenis, perihal: r.perihal, tanggal: r.tanggal, keterangan: r.keterangan, lampiran: r.lampiran, data: r.data || {} });
 
 export default function PengajuanDetail() {
   const { id } = useParams();
@@ -55,16 +56,20 @@ export default function PengajuanDetail() {
   const lastNote = [...req.history].reverse().find((h) => h.label === "Perlu Perbaikan");
 
   const resubmit = async () => {
-    const e = validate(values);
+    const e = req.data ? validateGuru(values) : validate(values);
     setErrors(e);
     if (Object.keys(e).length) return;
     setSending(true);
     setSendErr("");
     const fd = new FormData();
-    fd.append("jenis", values.jenis);
-    fd.append("perihal", values.perihal.trim());
-    fd.append("tanggal", values.tanggal);
-    fd.append("keterangan", (values.keterangan || "").trim());
+fd.append("jenis", values.jenis);
+if (req.data) {
+  tambahData(fd, dataSiap(values.jenis, values.data));
+} else {
+  fd.append("perihal", values.perihal.trim());
+  fd.append("tanggal", values.tanggal);
+  fd.append("keterangan", (values.keterangan || "").trim());
+}
     values.lampiran.forEach((l) => (l.file ? fd.append("lampiran[]", l.file) : fd.append("lampiran_tetap[]", l.id)));
     try {
       const res = await api(`/pengajuan/${req.id}/kirim-ulang`, { method: "POST", body: fd });
@@ -129,7 +134,9 @@ export default function PengajuanDetail() {
         <h2 className="text-lg font-bold text-navy">{perbaikan ? "Perbaiki isian" : "Data pengajuan"}</h2>
         {perbaikan ? (
           <div className="mt-5">
-            <RequestForm values={values} onChange={(p) => setEdit({ ...values, ...p })} errors={errors} notes={req.fieldNotes || {}} showJenis />
+            {req.data
+  ? <FormGuru values={values} onChange={(p) => setEdit({ ...values, ...p })} errors={errors} notes={req.fieldNotes || {}} showJenis />
+  : <RequestForm values={values} onChange={(p) => setEdit({ ...values, ...p })} errors={errors} notes={req.fieldNotes || {}} showJenis />}
             {sendErr && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{sendErr}</p>}
             <button type="button" onClick={resubmit} disabled={sending} className="mt-6 rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-70">
               {sending ? "Mengirim..." : "Kirim Ulang Pengajuan"}
@@ -137,11 +144,14 @@ export default function PengajuanDetail() {
           </div>
         ) : (
           <dl className="mt-3 divide-y divide-line text-sm">
-            {[
-              ["Perihal / keperluan", req.perihal],
-              ["Tanggal dibutuhkan", fmtDate(req.tanggal)],
-              ["Keterangan tambahan", req.keterangan || "-"],
-            ].map(([k, v]) => (
+{(req.data
+  ? barisData(req.jenis, req.data)
+  : [
+      ["Perihal / keperluan", req.perihal],
+      ["Tanggal dibutuhkan", fmtDate(req.tanggal)],
+      ["Keterangan tambahan", req.keterangan || "-"],
+    ]
+).map(([k, v]) => (
               <div key={k} className="grid gap-1 py-3 sm:grid-cols-3">
                 <dt className="text-slate-500">{k}</dt>
                 <dd className="font-semibold text-navy sm:col-span-2">{v}</dd>

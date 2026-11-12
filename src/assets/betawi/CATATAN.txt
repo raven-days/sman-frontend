@@ -1,0 +1,13 @@
+ASET BETAWI SMAN 104 - VERSI BERSIH
+
+Letakkan folder "betawi" di: src/assets/betawi/
+
+Perubahan dari paket asli:
+- Serpihan gambar tetangga di tepi dibuang (mis. potongan lengan di ondel-ondel wanita,
+  potongan awan di kakinya, potongan di tepi siluet Monas dan awan).
+- Ruang transparan di sekeliling dipangkas, jadi ukuran gambar = ukuran isi.
+- PNG diubah ke WebP (total 1.425 KB menjadi 347 KB). Latar tetap transparan.
+- gigi-balang-pattern.svg tidak diubah (vektor, ringan, bisa diulang dan diperbesar).
+
+Batas ukuran aman (supaya tidak buram di layar retina):
+- ondel-ondel: tinggi tampil maksimal sekitar 340 px (tinggi asli 600-an px).

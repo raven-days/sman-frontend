@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="64" viewBox="0 0 480 64">
+<rect width="480" height="64" fill="none"/>
+<defs>
+ <g id="motif">
+  <path d="M0 0 L18 0 L30 16 L18 32 L0 32 L12 16 Z" fill="#e52c36"/>
+  <path d="M30 0 L48 0 L60 16 L48 32 L30 32 L42 16 Z" fill="#159b59"/>
+  <path d="M15 31 L30 47 L15 63 L0 47 Z" fill="#f5b51b"/>
+  <path d="M45 31 L60 47 L45 63 L30 47 Z" fill="#087c4b"/>
+  <circle cx="15" cy="15" r="5" fill="#f5b51b"/>
+  <circle cx="45" cy="15" r="5" fill="#e52c36"/>
+ </g>
+</defs>
+<g transform="translate(0 0)">
+<use href="#motif" x="0" /><use href="#motif" x="60" /><use href="#motif" x="120" /><use href="#motif" x="180" /><use href="#motif" x="240" /><use href="#motif" x="300" /><use href="#motif" x="360" /><use href="#motif" x="420" />
+</g></svg>

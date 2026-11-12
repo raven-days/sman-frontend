@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import CekStatus from "./pages/CekStatus";
 import LayananList from "./pages/LayananList";
 import LayananDetail from "./pages/LayananDetail";
+import AsetSekolah from "./pages/AsetSekolah";
 import Kepegawaian from "./pages/Kepegawaian";
 import SuratKeputusan from "./pages/SuratKeputusan";
 import Kontak from "./pages/Kontak";
@@ -34,6 +35,7 @@ import KelolaAkun from "./pages/admin/KelolaAkun";
 import KelolaKontak from "./pages/admin/KelolaKontak";
 import LupaKataSandi from "./pages/LupaKataSandi";
 import PermintaanReset from "./pages/admin/PermintaanReset";
+import KelolaAset from "./pages/admin/KelolaAset";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -77,6 +79,9 @@ export default function App() {
             <Route path="/cek-status" element={<CekStatus />} />
             <Route path="/layanan" element={<LayananList />} />
             <Route path="/layanan/kepegawaian" element={<Kepegawaian />} />
+            <Route path="/layanan/aset" element={<AsetSekolah />} />
+            <Route path="/layanan/kepegawaian" element={<Kepegawaian />} />
+            <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/surat-keputusan" element={<SuratKeputusan />} />
             <Route path="/pengumuman" element={<Pengumuman />} />
@@ -99,7 +104,8 @@ export default function App() {
               <Route path="pegawai" element={<RequireRole izin="pegawai"><KelolaPegawai /></RequireRole>} />
               <Route path="pengumuman" element={<RequireRole izin="pengumuman"><KelolaPengumuman /></RequireRole>} />
               <Route path="banner" element={<RequireRole izin="banner"><KelolaBanner /></RequireRole>} />
-   <Route path="kontak" element={<RequireRole izin="kontak"><KelolaKontak /></RequireRole>} />
+              <Route path="kontak" element={<RequireRole izin="kontak"><KelolaKontak /></RequireRole>} />
+              <Route path="aset" element={<RequireRole izin="aset"><KelolaAset /></RequireRole>} />
             </Route>
 
             {/* Dashboard admin (khusus admin) */}
@@ -112,12 +118,13 @@ export default function App() {
 
             {/* Alamat lama: arahkan ke alamat baru */}
             <Route path="/admin/sk" element={<Navigate to="/tu/sk" replace />} />
+            <Route path="/denah" element={<Navigate to="/layanan/aset" replace />} />
             <Route path="/admin/pegawai" element={<Navigate to="/tu/pegawai" replace />} />
             <Route path="/admin/pengumuman" element={<Navigate to="/tu/pengumuman" replace />} />
               <Route path="kontak" element={<RequireRole izin="kontak"><KelolaKontak /></RequireRole>} />
 
             {/* Halaman lain (denah, pengumuman, dst.) masih placeholder */}
-            <Route path="*" element={<ComingSoon />} />
+            <Route path="{/* Halaman lain yang belum ada masih placeholder */}" element={<ComingSoon />} />
           </Routes>
           </PageTransition>
         </div>

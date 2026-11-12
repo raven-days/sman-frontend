@@ -28,7 +28,7 @@ function reducer(state, a) {
   }
 }
 
-export const EMPTY_DRAFT = { jenis: "", perihal: "", tanggal: "", keterangan: "", lampiran: [] };
+export const EMPTY_DRAFT = { jenis: "", perihal: "", tanggal: "", keterangan: "", lampiran: [], data: {} };
 
 const Ctx = createContext(null);
 

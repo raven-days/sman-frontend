@@ -5,12 +5,13 @@ import { useToast } from "../context/Toast";
 import { useSubmit } from "../lib/useSubmit";
 import Field, { inputCls } from "../components/Field";
 import { fmtDate } from "../lib/format";
-import { FIELD_LABELS } from "../data/content";
+import { FIELD_LABELS, KOLOM_GURU } from "../data/content";
 import StatusBadge from "../components/StatusBadge";
 import Timeline from "../components/Timeline";
 import LampiranList from "../components/LampiranList";
 import Modal from "../components/Modal";
 import PanelHasil from "../components/PanelHasil";
+import { barisData } from "../components/FormGuru";
 
 const NOTE_FIELDS = ["jenis", "perihal", "tanggal", "keterangan", "lampiran"];
 const btn = "rounded-lg px-5 py-2.5 text-sm font-semibold";
@@ -98,11 +99,14 @@ export default function PetugasDetail() {
       <section className="mt-6 rounded-xl border border-line bg-white p-6">
         <h2 className="text-lg font-bold text-navy">Data pengajuan</h2>
         <dl className="mt-3 divide-y divide-line text-sm">
-          {[
-            ["Perihal / keperluan", req.perihal],
-            ["Tanggal dibutuhkan", fmtDate(req.tanggal)],
-            ["Keterangan tambahan", req.keterangan || "-"],
-          ].map(([k, v]) => (
+            {(req.data
+              ? barisData(req.jenis, req.data)
+              : [
+                  ["Perihal / keperluan", req.perihal],
+                  ["Tanggal dibutuhkan", fmtDate(req.tanggal)],
+                  ["Keterangan tambahan", req.keterangan || "-"],
+                ]
+            ).map(([k, v]) => (
             <div key={k} className="grid gap-1 py-3 sm:grid-cols-3">
               <dt className="text-slate-500">{k}</dt>
               <dd className="font-semibold text-navy sm:col-span-2">{v}</dd>
@@ -167,7 +171,7 @@ export default function PetugasDetail() {
           <label htmlFor="umum" className="mt-4 block text-sm font-semibold text-navy">Catatan umum</label>
           <textarea id="umum" rows={2} value={umum} onChange={(e) => setUmum(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
           <p className="mt-4 text-sm font-semibold text-navy">Catatan per kolom (opsional)</p>
-          {NOTE_FIELDS.map((f) => (
+          {(req.data ? KOLOM_GURU[req.jenis] || NOTE_FIELDS : NOTE_FIELDS).map((f) => (              
             <div key={f} className="mt-2">
               <label htmlFor={`n-${f}`} className="text-xs text-slate-500">{FIELD_LABELS[f]}</label>
               <input id={`n-${f}`} value={fields[f] || ""} onChange={(e) => setFields({ ...fields, [f]: e.target.value })} placeholder="Contoh: perihal belum jelas" className="h-10 w-full rounded-lg border border-line px-3 text-sm" />

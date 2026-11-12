@@ -41,7 +41,6 @@ const MENU = [
   },
   { label: "Surat Keputusan", href: "/surat-keputusan" },
   { label: "Cek Status", href: "/cek-status" },
-  { label: "Denah Sekolah", href: "/denah" },
   { label: "Pengumuman", href: "/pengumuman" },
   { label: "Kontak", href: "/kontak" },
 ];

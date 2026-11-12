@@ -9,6 +9,38 @@ export const CONTACT = {
   jam: "06.30 - 15.00 WIB",
 };
 
+// Informasi sekolah untuk halaman Layanan > Aset.
+// Sumber: Data Referensi Kemendikdasmen, diperiksa 12 November 2026.
+// Belum terverifikasi oleh sekolah: tanggal SK pendirian (kosong di sumber) dan masa berlaku akreditasi.
+// Tanggal mulai belajar-mengajar bersumber dari Wikipedia (sumber sekunder).
+export const PROFIL_SEKOLAH = {
+  nama: "SMA Negeri 104 Jakarta",
+  npsn: "20103291",
+  status: "Negeri",
+  jenjang: "SMA (Pendidikan Menengah)",
+  pendirian: {
+    mulaiBelajar: "17 Juli 1990",
+    skNomor: "0283/0/1991",
+    skTanggal: null, // kosong di Data Referensi; isi bila TU punya dokumennya
+  },
+  akreditasi: {
+    peringkat: "A",
+    skNomor: "1347/BAN-SM/SK/2021",
+    tahun: "2021",
+    lembaga: "Badan Akreditasi Nasional Sekolah/Madrasah (BAN-S/M)",
+  },
+  lokasi: {
+    alamat: "Jalan H. Taiman Barat, Kelurahan Gedong, Kecamatan Pasar Rebo, Jakarta Timur 13760",
+    // Dipakai Google Maps untuk mencari pin. Bila pin kurang tepat, perbaiki teks ini.
+    query: "SMA Negeri 104 Jakarta, Jl. H. Taiman Barat, Gedong, Pasar Rebo, Jakarta Timur",
+  },
+  sumber: {
+    label: "Data Referensi Kemendikdasmen",
+    url: "https://dapo.kemendikdasmen.go.id/sekolah?npsn=20103291",
+  },
+};
+
+
 // Lima menu layanan sesuai revisi sekolah. Deskripsi sengaja dikosongkan dulu.
 export const SERVICES = [
   { slug: "anggaran", title: "Anggaran" },
@@ -59,21 +91,21 @@ export const ROLES = [
 export const ACCESS = {
   siswa: {
     anggaran: null,
-    aset: null,
+    aset: "Informasi sekolah dan denah",
     kepegawaian: "Lihat daftar guru dan tenaga kependidikan",
     "administrasi-persuratan": "Ajukan layanan dan pantau status",
     "kebersihan-keamanan": null,
   },
   guru: {
     anggaran: null,
-    aset: "Lihat aset dan ajukan peminjaman",
+    aset: "Informasi sekolah dan denah",
     kepegawaian: "Lihat daftar guru dan tenaga kependidikan",
     "administrasi-persuratan": "Ajukan layanan dan pantau status",
     "kebersihan-keamanan": null,
   },
   tu: {
     anggaran: "Akses petugas",
-    aset: "Kelola aset dan peminjaman",
+    aset: "Informasi sekolah dan denah",
     kepegawaian: "Kelola data pegawai",
     "administrasi-persuratan": "Proses pengajuan dan arsip surat",
     "kebersihan-keamanan": "Akses petugas",
@@ -84,12 +116,34 @@ export const ACCESS = {
 // Contoh jenis layanan, menunggu konfirmasi Tata Usaha.
 export const JENIS_SURAT = ["Surat Keterangan", "Surat Tugas", "Surat Dispensasi", "Surat Lainnya"];
 
+export const JENIS_GURU = ["Surat Undangan", "Surat Tugas", "Surat Keterangan"];
+export const UNIT_KERJA = ["Akademik", "Kesiswaan & Humas", "Sarpras & Adm", "Tata Usaha"];
+
 export const FIELD_LABELS = {
   jenis: "Jenis layanan",
   perihal: "Perihal / keperluan",
   tanggal: "Tanggal dibutuhkan",
   keterangan: "Keterangan tambahan",
   lampiran: "Lampiran",
+  pemohon: "Nama pemohon",
+  unit: "Bidang / unit kerja",
+  acara: "Acara undangan",
+  tujuan: "Tujuan undangan",
+  tanggal_acara: "Tanggal acara",
+  waktu: "Waktu acara",
+  tempat: "Tempat acara",
+  disetujui_kepsek: "Persetujuan Kepala Sekolah",
+  tipe: "Tipe penerima tugas",
+  penerima: "Yang ditugaskan",
+  keperluan: "Keperluan / tujuan surat",
+  catatan: "Catatan / keterangan khusus",
+};
+
+// Kolom yang bisa diberi catatan oleh petugas, per jenis surat guru/tendik.
+export const KOLOM_GURU = {
+  "Surat Undangan": ["pemohon", "unit", "acara", "tujuan", "tanggal_acara", "waktu", "tempat"],
+  "Surat Tugas": ["pemohon", "disetujui_kepsek", "penerima", "lampiran"],
+  "Surat Keterangan": ["pemohon", "keperluan", "catatan"],
 };
 
 // Data dummy (semua fiktif) supaya alur bisa dicoba.

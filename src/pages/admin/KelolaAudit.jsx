@@ -30,6 +30,11 @@ const AKSI = [
   ["banner_tambah", "Tambah banner"],
   ["banner_ubah", "Ubah banner"],
   ["banner_hapus", "Hapus banner"],
+  ["aset_profil_ubah", "Ubah info sekolah"],
+  ["aset_dokumen_tambah", "Tambah dokumen aset"],
+  ["aset_dokumen_ubah", "Ubah dokumen aset"],
+  ["aset_dokumen_hapus", "Hapus dokumen aset"],
+  ["aset_dokumen_buka", "Buka dokumen aset"],
 ];
 
 export default function KelolaAudit() {

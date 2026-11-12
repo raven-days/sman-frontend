@@ -1,0 +1,18 @@
+export const PROFIL_DEFAULT = {
+  nama: "SMA Negeri 104 Jakarta",
+  npsn: "20103291",
+  status: "Negeri",
+  jenjang: "SMA (Pendidikan Menengah)",
+  pendirian_mulai: "17 Juli 1990",
+  pendirian_sk_nomor: "0283/0/1991",
+  pendirian_sk_tanggal: null,
+  akreditasi_peringkat: "A",
+  akreditasi_sk_nomor: "1347/BAN-SM/SK/2021",
+  akreditasi_tahun: "2021",
+  akreditasi_berlaku_sampai: null,
+  akreditasi_lembaga: "Badan Akreditasi Nasional Sekolah/Madrasah (BAN-S/M)",
+  lokasi_alamat: "Jalan H. Taiman Barat, Kelurahan Gedong, Kecamatan Pasar Rebo, Jakarta Timur 13760",
+  lokasi_peta: "SMA Negeri 104 Jakarta, Jl. H. Taiman Barat, Gedong, Pasar Rebo, Jakarta Timur",
+  sumber_label: "Data Referensi Kemendikdasmen",
+  sumber_url: "https://referensi.data.kemendikdasmen.go.id/pendidikan/npsn/20103291",
+};

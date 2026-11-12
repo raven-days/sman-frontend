@@ -78,6 +78,23 @@ export async function bukaLampiran(path) {
   }
 }
 
+// Unduh file yang dilindungi login ke perangkat (token dikirim lewat header).
+export async function unduhBerkas(path, nama = "dokumen") {
+  const res = await fetch(API_URL + path, { headers: { Authorization: `Bearer ${getToken()}` } });
+  if (!res.ok) {
+    const pesan = (await res.json().catch(() => null))?.message;
+    throw new Error(pesan || "File tidak dapat diunduh.");
+  }
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nama;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 // Beri tahu server bahwa pengguna keluar (mencabut token). Gagal pun tidak masalah.
 export function keluarDiServer() {
   return api("/logout", { method: "POST" }).catch(() => {});

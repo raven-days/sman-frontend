@@ -5,7 +5,7 @@ import { JENIS_SURAT } from "../data/content";
 const MAX_MB = 2;
 const MAX_FILES = 5;
 const OK_EXT = ["pdf", "jpg", "jpeg", "png"];
-const input =
+export const input =
   "h-12 w-full rounded-lg border border-line px-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-surface";
 
 export function validate(v) {
@@ -16,7 +16,7 @@ export function validate(v) {
   return e;
 }
 
-function Field({ id, label, required, hint, error, note, children }) {
+export function Field({ id, label, required, hint, error, note, children }) {
   return (
     <div className={note ? "rounded-xl border border-orange-300 bg-orange-50/60 p-4" : ""}>
       <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-navy">
@@ -42,7 +42,7 @@ function Field({ id, label, required, hint, error, note, children }) {
   );
 }
 
-function Upload({ files, onChange }) {
+export function Upload({ files, onChange }) {
   const [problems, setProblems] = useState([]);
 
   const add = (list) => {

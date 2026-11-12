@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckIcon } from "@heroicons/react/24/solid";
-import { JENIS_SURAT } from "../data/content";
+import { JENIS_SURAT, JENIS_GURU } from "../data/content";
 import { useApp, EMPTY_DRAFT } from "../context/AppState";
 import { api } from "../lib/api";
 import { useUnsavedChanges } from "../lib/useUnsaved";
 import { fmtDate } from "../lib/format";
 import RequestForm, { validate } from "../components/RequestForm";
+import FormGuru, { validateGuru, barisData, dataSiap, tambahData } from "../components/FormGuru";
 
 const STEPS = ["Pilih Layanan", "Isi Formulir", "Konfirmasi"];
 
 export default function Ajukan() {
   const { user, draft, setDraft } = useApp();
   const navigate = useNavigate();
+  const guru = user?.role === "guru";
+  const daftarJenis = guru ? JENIS_GURU : JENIS_SURAT;
   const [step, setStep] = useState(draft.perihal ? 2 : 0);
   const [errors, setErrors] = useState({});
   const [agree, setAgree] = useState(false);
@@ -30,7 +33,7 @@ export default function Ajukan() {
       setErrors({});
       return setStep(1);
     }
-    const e = validate(draft);
+    const e = guru ? validateGuru(draft) : validate(draft);
     setErrors(e);
     if (Object.keys(e).length === 0) setStep(2);
   };
@@ -42,10 +45,14 @@ export default function Ajukan() {
   setSending(true);
   setSendErr("");
   const fd = new FormData();
-  fd.append("jenis", draft.jenis);
+fd.append("jenis", draft.jenis);
+if (guru) {
+  tambahData(fd, dataSiap(draft.jenis, draft.data));
+} else {
   fd.append("perihal", draft.perihal.trim());
   fd.append("tanggal", draft.tanggal);
   fd.append("keterangan", draft.keterangan.trim());
+}
   draft.lampiran.forEach((l) => fd.append("lampiran[]", l.file));
   try {
     const res = await api("/pengajuan", { method: "POST", body: fd });
@@ -94,14 +101,14 @@ export default function Ajukan() {
           <fieldset>
             <legend className="text-lg font-bold text-navy">Pilih jenis layanan</legend>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {JENIS_SURAT.map((j) => (
+              {daftarJenis.map((j) => (
                 <label
                   key={j}
                   className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 ${
                     draft.jenis === j ? "border-primary bg-blue-50 ring-2 ring-primary/20" : "border-line bg-white hover:bg-surface"
                   }`}
                 >
-                  <input type="radio" name="jenis" checked={draft.jenis === j} onChange={() => change({ jenis: j })} className="h-4 w-4 accent-[#0878d1]" />
+                  <input type="radio" name="jenis" checked={draft.jenis === j} onChange={() => change({ jenis: j, data: {} })} className="h-4 w-4 accent-[#0878d1]" />
                   <span className="font-semibold text-navy">{j}</span>
                 </label>
               ))}
@@ -117,7 +124,9 @@ export default function Ajukan() {
               <span>Jenis layanan: <b className="text-navy">{draft.jenis}</b></span>
               <button type="button" onClick={() => setStep(0)} className="font-semibold text-primary">Ubah</button>
             </p>
-            <RequestForm values={draft} onChange={change} errors={errors} />
+            {guru
+  ? <FormGuru values={draft} onChange={change} errors={errors} />
+  : <RequestForm values={draft} onChange={change} errors={errors} />}
           </>
         )}
 
@@ -127,9 +136,13 @@ export default function Ajukan() {
             <dl className="mt-4 divide-y divide-line text-sm">
               {[
                 ["Jenis layanan", draft.jenis],
-                ["Perihal / keperluan", draft.perihal],
-                ["Tanggal dibutuhkan", fmtDate(draft.tanggal)],
-                ["Keterangan tambahan", draft.keterangan || "-"],
+                ...(guru
+                  ? barisData(draft.jenis, dataSiap(draft.jenis, draft.data))
+                  : [
+                      ["Perihal / keperluan", draft.perihal],
+                      ["Tanggal dibutuhkan", fmtDate(draft.tanggal)],
+                      ["Keterangan tambahan", draft.keterangan || "-"],
+                    ]),
                 ["Lampiran", draft.lampiran.length ? draft.lampiran.map((l) => l.nama).join(", ") : "Tidak ada"],
               ].map(([k, v]) => (
                 <div key={k} className="grid gap-1 py-3 sm:grid-cols-3">
