@@ -14,21 +14,25 @@ import { useApp } from "../context/AppState";
 import { useToast } from "../context/Toast";
 import logoTutWuri from "../assets/logo-tutwuri.png";
 import logoJakarta from "../assets/logo-jakarta.png";
+import logo5Abad from "../assets/logo-5abad-jakarta.png";
+import logoDisdik from "../assets/dinas-pendidikan-logo.png"; // sesuaikan ekstensi bila bukan .png
+import Wordmark from "./Wordmark";
 import { keluarDiServer } from "../lib/api";
 
 /* ================= DATA ================= */
 const SITE = {
-  name: "Layanan Tata Usaha",
-  school: "SMA Negeri 104 Jakarta",
+  name: "LASempat",
+  school: "Layanan 104 · Tata Usaha SMAN 104 Jakarta",
   // Ganti dengan alamat website sekolah yang sebenarnya
   schoolWebsite: "#",
 };
 
-// Logo wajib. Isi `src` setelah file resmi didapat (import dari src/assets).
-// Selama `src` kosong, tampil kotak penanda.
+// Urutan: Kementerian, Jaya Raya, 5 Abad Jakarta, Dinas Pendidikan, SMAN 104.
 const LOGOS = [
   { alt: "Logo Tut Wuri Handayani", label: "Tut Wuri Handayani", src: logoTutWuri },
-  { alt: "Logo +Jakarta", label: "+Jakarta", src: logoJakarta },
+  { alt: "Logo Jaya Raya", label: "Jaya Raya", src: logoJakarta },
+  { alt: "Logo 5 Abad Jakarta", label: "5 Abad Jakarta", src: logo5Abad },
+  { alt: "Logo Dinas Pendidikan", label: "Dinas Pendidikan", src: logoDisdik },
   { alt: "Logo SMA Negeri 104 Jakarta", src: logoSMA },
 ];
 
@@ -185,13 +189,13 @@ function Navbar() {
             <div className="flex shrink-0 items-center gap-1.5">
               {LOGOS.map((logo, i) => (
                 <span key={logo.alt} className={logo.mobile ? "" : "hidden md:block"}>
-                  <LogoMark logo={logo} />
+                                    <LogoMark logo={logo} size="h-9 w-9" />
                 </span>
               ))}
             </div>
             <span className="hidden h-9 w-px bg-line sm:block" />
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-bold text-navy sm:text-base">{SITE.name}</p>
+              <Wordmark className="block truncate text-xl sm:text-2xl" />
               <p className="truncate text-[11px] text-slate-500 sm:text-xs">{SITE.school}</p>
             </div>
           </Link>

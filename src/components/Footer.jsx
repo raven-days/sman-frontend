@@ -1,76 +1,264 @@
+
 import { Link } from "react-router-dom";
-import { MapPinIcon, PhoneIcon, EnvelopeIcon, ClockIcon } from "@heroicons/react/24/outline";
+import {
+  MapPinIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
+
 import { useKontak, ringkasJam } from "../lib/useKontak";
+import Wordmark from "./Wordmark";
+
+import awanLebar from "../assets/betawi/awan-betawi-lebar.webp";
+import awanKecil from "../assets/betawi/awan-betawi-kecil.webp";
+import daun from "../assets/betawi/ornamen-daun.webp";
+import monas from "../assets/betawi/siluet-jakarta-monas.webp";
+import ondelPria from "../assets/betawi/ondel-ondel-pria.webp";
+import ondelWanita from "../assets/betawi/ondel-ondel-wanita.webp";
+import gigiBalangAtas from "../assets/betawi/gigi-balang-strip-atas.webp";
+import gigiBalangBawah from "../assets/betawi/gigi-balang-strip-bawah.webp";
+
+
 
 const quick = [
   { label: "Daftar Layanan", to: "/layanan" },
-  { label: "Alur Pengajuan", to: "/#alur" },
   { label: "Surat Keputusan", to: "/surat-keputusan" },
   { label: "Cek Status", to: "/cek-status" },
+  { label: "Ajukan Tanpa Akun", to: "/ajukan-tamu" },
   { label: "Kontak", to: "/kontak" },
 ];
+
+const tautan =
+  "text-white/85 transition-colors duration-200 hover:text-[#ffc928] hover:underline focus-visible:outline-2 focus-visible:outline-[#ffc928]";
+
+function Hias({ src, className = "" }) {
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      decoding="async"
+      className={`absolute bottom-0 max-w-none pointer-events-none ${className}`}
+    />
+  );
+}
+
+function Wajah({ src, lebar, tinggi, kanan }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute bottom-0 block overflow-hidden pointer-events-none"
+      style={{ width: lebar, height: tinggi, right: kanan }}
+    >
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        style={{ width: lebar, maxWidth: "none" }}
+      />
+    </span>
+  );
+}
 
 export default function Footer() {
   const k = useKontak();
   const jam = ringkasJam(k);
 
-  const contacts = [
+  const kontak = [
     k.alamat && { icon: MapPinIcon, text: k.alamat },
-    k.telepon && { icon: PhoneIcon, text: k.telepon, href: `tel:${k.telepon.replace(/[^0-9+]/g, "")}` },
-    k.email && { icon: EnvelopeIcon, text: k.email, href: `mailto:${k.email}` },
-    jam && { icon: ClockIcon, text: `Jam layanan: ${jam}` },
+    k.telepon && {
+      icon: PhoneIcon,
+      text: k.telepon,
+      href: `tel:${k.telepon.replace(/[^0-9+]/g, "")}`,
+    },
+    k.email && {
+      icon: EnvelopeIcon,
+      text: k.email,
+      href: `mailto:${k.email}`,
+    },
+    jam && { icon: ClockIcon, text: jam },
   ].filter(Boolean);
 
+  const hakCipta = (
+    <>
+      <span>
+        © 2026 SMA Negeri 104 Jakarta. Hak cipta dilindungi.
+      </span>
+
+      {k.media_sosial?.length > 0 && (
+        <ul className="flex flex-wrap justify-center gap-x-4">
+          {k.media_sosial.map((m) => (
+            <li key={m.url}>
+              <a
+                href={m.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={tautan}
+              >
+                {m.nama}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+
   return (
-    <footer className="bg-navy text-blue-100">
-      <div className="mx-auto grid max-w-[1200px] gap-10 px-5 py-12 sm:px-8 md:grid-cols-3">
-        <div>
-          <p className="font-display text-lg font-bold text-white">SMA Negeri 104 Jakarta</p>
-          <p className="text-sm text-blue-200">Layanan Tata Usaha</p>
-          <p className="mt-4 max-w-xs text-sm leading-6 text-blue-200">
-            Portal layanan administrasi sekolah: anggaran, aset, kepegawaian, administrasi &amp;
-            persuratan, serta kebersihan &amp; keamanan dalam satu tempat.
+    <footer className="relative isolate overflow-hidden bg-[#0b1d3f] text-[#b3c1dc]">
+
+      {/* PITA ORNAMEN GIGI BALANG DI ATAS FOOTER */}
+      {/* <div
+        className="ornamen"
+        style={{
+          backgroundImage: `url("${gigiBalangAtas}")`,
+        }}
+        aria-hidden="true"
+      /> */}
+
+      {/* KONTEN UTAMA */}
+      <div className="relative z-10 mx-auto grid max-w-[1200px] gap-7 px-5 py-8 text-sm sm:px-8 md:grid-cols-[1fr_1.5fr_auto] md:gap-x-10 md:gap-y-8 lg:gap-x-16 lg:py-10">
+
+        {/* IDENTITAS SEKOLAH */}
+        <div className="min-w-0">
+          <Wordmark tone="gelap" className="text-2xl" />
+
+          <p className="mt-2 leading-6 text-white/80">
+            Layanan 104
+            <br />
+            Tata Usaha SMA Negeri 104 Jakarta
           </p>
         </div>
 
-        <div>
-          <p className="mb-4 font-semibold text-white">Informasi Kontak</p>
-          <ul className="space-y-3 text-sm">
-            {contacts.map(({ icon: Icon, text, href }) => (
-              <li key={text} className="flex gap-3">
-                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" />
+        {/* INFORMASI KONTAK */}
+        <div className="min-w-0">
+          <h3 className="mb-3 font-semibold text-white">
+            Informasi Kontak
+          </h3>
+
+          <ul className="space-y-2.5">
+            {kontak.map(({ icon: Icon, text, href }) => (
+              <li
+                key={text}
+                className="flex items-start gap-2.5 leading-5"
+              >
+                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#ffc928]" />
+
                 {href ? (
-                  <a href={href} className="hover:text-white">
+                  <a href={href} className={tautan}>
                     {text}
                   </a>
                 ) : (
-                  <span>{text}</span>
+                  <span className="text-white/80">
+                    {text}
+                  </span>
                 )}
               </li>
             ))}
           </ul>
         </div>
 
-        <div>
-          <p className="mb-4 font-semibold text-white">Tautan Cepat</p>
-          <ul className="space-y-2 text-sm">
+        {/* TAUTAN CEPAT */}
+        <nav aria-label="Tautan cepat" className="min-w-0">
+          <h3 className="mb-3 font-semibold text-white">
+            Tautan Cepat
+          </h3>
+
+          <ul className="space-y-2">
             {quick.map((q) => (
               <li key={q.label}>
-                <Link to={q.to} className="hover:text-white">
+                <Link to={q.to} className={tautan}>
                   {q.label}
                 </Link>
               </li>
             ))}
           </ul>
+        </nav>
+      </div>
+
+      {/* BAGIAN BAWAH: DEKORASI BETAWI + HAK CIPTA */}
+      <div className="relative border-t border-white/10">
+
+        {/* DEKORASI KIRI, TENGAH, DAN KANAN */}
+        <div className="relative grid min-h-[96px] md:grid-cols-[240px_1fr] lg:grid-cols-[300px_1fr_430px]">
+
+          {/* AWAN DAN DAUN KIRI */}
+          <div
+            aria-hidden="true"
+            className="relative hidden overflow-hidden md:block"
+          >
+            <Hias
+              src={awanLebar}
+              className="left-[-30px] w-[250px] opacity-95"
+            />
+
+            <Hias
+              src={daun}
+              className="left-[8px] w-[110px]"
+            />
+
+            <Hias
+              src={awanKecil}
+              className="left-[150px] w-[120px] opacity-90"
+            />
+          </div>
+
+          {/* HAK CIPTA */}
+          <div className="flex flex-col items-center justify-center gap-1 px-4 py-4 text-center text-xs">
+            {hakCipta}
+          </div>
+
+          {/* MONAS DAN ONDEL-ONDEL KANAN */}
+          <div
+            aria-hidden="true"
+            className="relative hidden overflow-hidden lg:block"
+          >
+            <Hias
+              src={awanKecil}
+              className="right-[-10px] w-[120px] opacity-90"
+            />
+
+            <Hias
+              src={monas}
+              className="right-[140px] w-[230px] opacity-60"
+            />
+
+            <Wajah
+              src={ondelPria}
+              lebar={62}
+              tinggi={78}
+              kanan={72}
+            />
+
+            <Wajah
+              src={ondelWanita}
+              lebar={64}
+              tinggi={78}
+              kanan={14}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-1 px-5 py-4 text-xs text-blue-300 sm:flex-row sm:justify-between sm:px-8">
-          <span>© 2026 SMA Negeri 104 Jakarta. Hak cipta dilindungi.</span>
-          <span>Dikelola oleh Tata Usaha SMAN 104 Jakarta</span>
+      {/* HAK CIPTA VERSI MOBILE */}
+      <div className="md:hidden">
+        <div className="flex flex-col gap-2 px-5 py-3 text-center text-xs">
+          {hakCipta}
         </div>
       </div>
+
+{/* ORNAMEN GIGI BALANG BAWAH */}
+<div
+  className="ornamen-bawah"
+  style={{
+    backgroundImage: `url("${gigiBalangBawah}")`,
+  }}
+  aria-hidden="true"
+/>
+
     </footer>
   );
 }
