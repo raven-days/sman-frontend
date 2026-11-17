@@ -56,7 +56,7 @@ export default function PengajuanDetail() {
   const lastNote = [...req.history].reverse().find((h) => h.label === "Perlu Perbaikan");
 
   const resubmit = async () => {
-    const e = req.data ? validateGuru(values) : validate(values);
+    const e = req.data ? validateGuru(values, req.ownerRole) : validate(values);
     setErrors(e);
     if (Object.keys(e).length) return;
     setSending(true);
@@ -135,7 +135,7 @@ if (req.data) {
         {perbaikan ? (
           <div className="mt-5">
             {req.data
-  ? <FormGuru values={values} onChange={(p) => setEdit({ ...values, ...p })} errors={errors} notes={req.fieldNotes || {}} showJenis />
+  ? <FormGuru values={values} onChange={(p) => setEdit({ ...values, ...p })} errors={errors} notes={req.fieldNotes || {}} showJenis role={req.ownerRole} />
   : <RequestForm values={values} onChange={(p) => setEdit({ ...values, ...p })} errors={errors} notes={req.fieldNotes || {}} showJenis />}
             {sendErr && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{sendErr}</p>}
             <button type="button" onClick={resubmit} disabled={sending} className="mt-6 rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-70">
@@ -145,7 +145,7 @@ if (req.data) {
         ) : (
           <dl className="mt-3 divide-y divide-line text-sm">
 {(req.data
-  ? barisData(req.jenis, req.data)
+  ? barisData(req.jenis, req.data, req.ownerRole)
   : [
       ["Perihal / keperluan", req.perihal],
       ["Tanggal dibutuhkan", fmtDate(req.tanggal)],

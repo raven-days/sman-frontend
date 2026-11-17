@@ -15,7 +15,7 @@ export default function Akun() {
   const daftar = data ?? [];
   const perbaikan = daftar.filter((r) => r.status === "Perlu Perbaikan").length;
   const antrian = daftar.filter(
-    (r) => r.status === "Menunggu" || r.status === "Diverifikasi",
+    (r) => !["Selesai", "Ditolak", "Perlu Perbaikan"].includes(r.status),
   ).length;
 
   return (
@@ -157,17 +157,17 @@ export default function Akun() {
           );
         })}
         <Link
-          to="/surat-keputusan"
+          to="/dokumen"
           className="rounded-xl border border-line bg-white p-5 hover:shadow-md"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-primary">
             <ServiceIcon slug="administrasi-persuratan" className="h-5 w-5" />
           </span>
           <span className="mt-3 block font-bold text-navy">
-            Surat Keputusan
+            Dokumen SK & SOP
           </span>
           <span className="mt-1 block text-xs text-slate-600">
-            Terbuka untuk semua pengguna
+            Khusus akun yang login
           </span>
         </Link>
       </div>

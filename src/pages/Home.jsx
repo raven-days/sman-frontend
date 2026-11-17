@@ -119,35 +119,6 @@ export default function Home() {
             </Reveal>
           ))}
         </div>
-
-        {/* Surat Keputusan: terbuka untuk semua pengguna */}
-        <Reveal delay={120}>
-          <Link
-            to="/surat-keputusan"
-            className="card-hover group mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-5 py-4 hover:bg-blue-50"
-          >
-            <span className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-primary">
-                <ScaleIcon className="h-5 w-5" />
-              </span>
-
-              <span>
-                <span className="block font-bold text-navy">
-                  Surat Keputusan
-                </span>
-
-                <span className="block text-sm text-slate-600">
-                  Dapat diakses oleh semua pengguna, tanpa perlu masuk.
-                </span>
-              </span>
-            </span>
-
-            <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
-              Lihat SK
-              <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </span>
-          </Link>
-        </Reveal>
       </section>
 
       {/* ALUR */}

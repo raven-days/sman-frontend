@@ -23,7 +23,6 @@ import gigiBalangBawah from "../assets/betawi/gigi-balang-strip-bawah.webp";
 
 const quick = [
   { label: "Daftar Layanan", to: "/layanan" },
-  { label: "Surat Keputusan", to: "/surat-keputusan" },
   { label: "Cek Status", to: "/cek-status" },
   { label: "Ajukan Tanpa Akun", to: "/ajukan-tamu" },
   { label: "Kontak", to: "/kontak" },

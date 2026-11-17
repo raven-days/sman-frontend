@@ -5,7 +5,7 @@ import LampiranList from "./LampiranList";
 export default function HasilPengajuan({ req }) {
   const adaDokumen = (req.hasil?.length ?? 0) > 0;
   const p = req.pengambilan;
-  if (!["Disetujui", "Selesai"].includes(req.status) || (!adaDokumen && !p)) return null;
+if (req.status !== "Selesai" || (!adaDokumen && !p)) return null;
 
   const selesai = req.status === "Selesai";
   const Ikon = p?.mode === "unduh" ? ArrowDownTrayIcon : BuildingOffice2Icon;

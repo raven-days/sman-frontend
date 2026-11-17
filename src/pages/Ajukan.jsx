@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckIcon } from "@heroicons/react/24/solid";
-import { JENIS_SURAT, JENIS_GURU } from "../data/content";
+import { JENIS_FORM } from "../data/content";
 import { useApp, EMPTY_DRAFT } from "../context/AppState";
 import { api } from "../lib/api";
 import { useUnsavedChanges } from "../lib/useUnsaved";
-import { fmtDate } from "../lib/format";
-import RequestForm, { validate } from "../components/RequestForm";
 import FormGuru, { validateGuru, barisData, dataSiap, tambahData } from "../components/FormGuru";
 
 const STEPS = ["Pilih Layanan", "Isi Formulir", "Konfirmasi"];
@@ -14,8 +12,8 @@ const STEPS = ["Pilih Layanan", "Isi Formulir", "Konfirmasi"];
 export default function Ajukan() {
   const { user, draft, setDraft } = useApp();
   const navigate = useNavigate();
-  const guru = user?.role === "guru";
-  const daftarJenis = guru ? JENIS_GURU : JENIS_SURAT;
+const peran = user?.role === "guru" ? "guru" : "siswa";
+const daftarJenis = JENIS_FORM[peran];
   const [step, setStep] = useState(draft.perihal ? 2 : 0);
   const [errors, setErrors] = useState({});
   const [agree, setAgree] = useState(false);
@@ -29,11 +27,11 @@ export default function Ajukan() {
 
   const next = () => {
     if (step === 0) {
-      if (!draft.jenis) return setErrors({ jenis: "Pilih salah satu jenis layanan." });
+      if (!daftarJenis.includes(draft.jenis)) return setErrors({ jenis: "Pilih salah satu jenis layanan." });
       setErrors({});
       return setStep(1);
     }
-    const e = guru ? validateGuru(draft) : validate(draft);
+    const e = validateGuru(draft, peran);
     setErrors(e);
     if (Object.keys(e).length === 0) setStep(2);
   };
@@ -46,13 +44,7 @@ export default function Ajukan() {
   setSendErr("");
   const fd = new FormData();
 fd.append("jenis", draft.jenis);
-if (guru) {
-  tambahData(fd, dataSiap(draft.jenis, draft.data));
-} else {
-  fd.append("perihal", draft.perihal.trim());
-  fd.append("tanggal", draft.tanggal);
-  fd.append("keterangan", draft.keterangan.trim());
-}
+tambahData(fd, dataSiap(draft.jenis, draft.data));
   draft.lampiran.forEach((l) => fd.append("lampiran[]", l.file));
   try {
     const res = await api("/pengajuan", { method: "POST", body: fd });
@@ -114,7 +106,6 @@ if (guru) {
               ))}
             </div>
             {errors.jenis && <p role="alert" className="mt-2 text-xs font-medium text-red-600">{errors.jenis}</p>}
-            <p className="mt-4 text-xs text-slate-400">Daftar jenis layanan masih contoh dan akan disesuaikan dengan Tata Usaha.</p>
           </fieldset>
         )}
 
@@ -124,9 +115,7 @@ if (guru) {
               <span>Jenis layanan: <b className="text-navy">{draft.jenis}</b></span>
               <button type="button" onClick={() => setStep(0)} className="font-semibold text-primary">Ubah</button>
             </p>
-            {guru
-  ? <FormGuru values={draft} onChange={change} errors={errors} />
-  : <RequestForm values={draft} onChange={change} errors={errors} />}
+            <FormGuru values={draft} onChange={change} errors={errors} role={peran} />
           </>
         )}
 
@@ -136,13 +125,7 @@ if (guru) {
             <dl className="mt-4 divide-y divide-line text-sm">
               {[
                 ["Jenis layanan", draft.jenis],
-                ...(guru
-                  ? barisData(draft.jenis, dataSiap(draft.jenis, draft.data))
-                  : [
-                      ["Perihal / keperluan", draft.perihal],
-                      ["Tanggal dibutuhkan", fmtDate(draft.tanggal)],
-                      ["Keterangan tambahan", draft.keterangan || "-"],
-                    ]),
+...barisData(draft.jenis, dataSiap(draft.jenis, draft.data), peran),
                 ["Lampiran", draft.lampiran.length ? draft.lampiran.map((l) => l.nama).join(", ") : "Tidak ada"],
               ].map(([k, v]) => (
                 <div key={k} className="grid gap-1 py-3 sm:grid-cols-3">

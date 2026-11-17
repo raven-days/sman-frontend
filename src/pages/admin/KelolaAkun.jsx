@@ -18,7 +18,9 @@ const MODUL = [
   ["pegawai", "Data pegawai"],
   ["pengumuman", "Pengumuman"],
   ["banner", "Banner beranda"],
-  ["kontak", "Kontak & FAQ"]
+  ["siswa", "Data siswa"],
+  ["kontak", "Kontak & FAQ"],
+  ["anggaran", "Layanan anggaran"],
 ];
 const SEMUA_MODUL = MODUL.map(([k]) => k);
 const labelRole = (id) => ROLES.find((r) => r.id === id)?.label ?? id;

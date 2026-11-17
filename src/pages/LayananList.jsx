@@ -24,21 +24,6 @@ export default function LayananList() {
             </Link>
           </Reveal>
         ))}
-        <Reveal delay={SERVICES.length * 60}>
-          <Link
-            to="/surat-keputusan"
-            className="card-hover group flex h-full items-center gap-4 rounded-xl border border-line bg-surface p-5 hover:bg-blue-50"
-          >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-primary">
-              <ScaleIcon className="h-6 w-6" />
-            </span>
-            <span className="flex-1">
-              <span className="block font-bold leading-snug text-navy">Surat Keputusan</span>
-              <span className="block text-xs text-slate-600">Terbuka untuk semua pengguna</span>
-            </span>
-            <ArrowRightIcon className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
-          </Link>
-        </Reveal>
       </div>
     </div>
   );

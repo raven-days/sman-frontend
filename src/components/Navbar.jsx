@@ -18,11 +18,12 @@ import logo5Abad from "../assets/logo-5abad-jakarta.png";
 import logoDisdik from "../assets/dinas-pendidikan-logo.png"; // sesuaikan ekstensi bila bukan .png
 import Wordmark from "./Wordmark";
 import { keluarDiServer } from "../lib/api";
+import gigiBalangAtas from "../assets/betawi/gigi-balang-strip-atas.webp";
 
 /* ================= DATA ================= */
 const SITE = {
   name: "LASempat",
-  school: "Layanan 104 · Tata Usaha SMAN 104 Jakarta",
+  school: "Layanan Tata Usaha SMAN 104 Jakarta",
   // Ganti dengan alamat website sekolah yang sebenarnya
   schoolWebsite: "#",
 };
@@ -43,7 +44,6 @@ const MENU = [
     href: "/layanan",
     children: SERVICES.map((s) => ({ label: s.title, href: `/layanan/${s.slug}` })),
   },
-  { label: "Surat Keputusan", href: "/surat-keputusan" },
   { label: "Cek Status", href: "/cek-status" },
   { label: "Pengumuman", href: "/pengumuman" },
   { label: "Kontak", href: "/kontak" },
@@ -286,6 +286,16 @@ function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/* ORNAMEN GIGI BALANG DI BAWAH NAVBAR */}
+      <div
+        className="ornamen-navbar"
+        style={{
+          backgroundImage: `url("${gigiBalangAtas}")`,
+        }}
+        aria-hidden="true"
+      />
+
     </header>
   );
 }

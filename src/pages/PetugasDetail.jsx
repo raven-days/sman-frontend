@@ -5,13 +5,13 @@ import { useToast } from "../context/Toast";
 import { useSubmit } from "../lib/useSubmit";
 import Field, { inputCls } from "../components/Field";
 import { fmtDate } from "../lib/format";
-import { FIELD_LABELS, KOLOM_GURU } from "../data/content";
 import StatusBadge from "../components/StatusBadge";
 import Timeline from "../components/Timeline";
 import LampiranList from "../components/LampiranList";
 import Modal from "../components/Modal";
 import PanelHasil from "../components/PanelHasil";
 import { barisData } from "../components/FormGuru";
+import { FIELD_LABELS, KOLOM_FORM } from "../data/content";
 
 const NOTE_FIELDS = ["jenis", "perihal", "tanggal", "keterangan", "lampiran"];
 const btn = "rounded-lg px-5 py-2.5 text-sm font-semibold";
@@ -100,7 +100,7 @@ export default function PetugasDetail() {
         <h2 className="text-lg font-bold text-navy">Data pengajuan</h2>
         <dl className="mt-3 divide-y divide-line text-sm">
             {(req.data
-              ? barisData(req.jenis, req.data)
+              ? barisData(req.jenis, req.data, req.ownerRole)
               : [
                   ["Perihal / keperluan", req.perihal],
                   ["Tanggal dibutuhkan", fmtDate(req.tanggal)],
@@ -119,32 +119,39 @@ export default function PetugasDetail() {
         </dl>
       </section>
 
-      {(s === "Disetujui" || s === "Selesai") && <PanelHasil req={req} onUpdate={setReq} />}
+      {(s === "Tanda Tangan" || s === "Selesai") && <PanelHasil req={req} onUpdate={setReq} />}
       <section className="mt-6 rounded-xl border border-line bg-white p-6">
         <h2 className="text-lg font-bold text-navy">Tindakan</h2>
         {s === "Perlu Perbaikan" && <p className="mt-2 text-sm text-slate-600">Menunggu pemohon memperbaiki isian dan mengirim ulang.</p>}
         {(s === "Ditolak" || s === "Selesai") && <p className="mt-2 text-sm text-slate-600">Pengajuan ini sudah final.</p>}
         <div className={`mt-4 flex flex-wrap gap-3 ${saving ? "pointer-events-none opacity-60" : ""}`}>
-          {s === "Menunggu" && <button type="button" onClick={() => go("Diverifikasi", "Berkas sudah diperiksa.")} className={`${btn} bg-primary text-white hover:bg-primary-dark`}>Verifikasi</button>}
-          {s === "Diverifikasi" && <button type="button" onClick={() => go("Disetujui")} className={`${btn} bg-green-600 text-white hover:bg-green-700`}>Setujui</button>}
-          {s === "Disetujui" && (
-            <button
-              type="button"
-              onClick={() => {
-                if (!req.hasil?.length && !req.pengambilan) return toast.warning("Isi dokumen hasil atau petunjuk pengambilan dulu.");
-                go("Selesai");
-              }}
-              className={`${btn} bg-green-600 text-white hover:bg-green-700`}
-            >
-              Tandai Selesai
-            </button>
-          )}
-          {(s === "Menunggu" || s === "Diverifikasi") && (
-            <>
+            {s === "Menunggu" && <button type="button" onClick={() => go("Diverifikasi", "Data dinyatakan lengkap.")} className={`${btn} bg-primary text-white hover:bg-primary-dark`}>Verifikasi Kelengkapan</button>}
+            {s === "Diverifikasi" && <button type="button" onClick={() => go("Pembuatan Draf")} className={`${btn} bg-primary text-white hover:bg-primary-dark`}>Mulai Buat Draf</button>}
+            {s === "Pembuatan Draf" && <button type="button" onClick={() => go("Verifikasi Kasubag")} className={`${btn} bg-primary text-white hover:bg-primary-dark`}>Kirim ke Kasubag</button>}
+            {s === "Verifikasi Kasubag" && (
+              <>
+                <button type="button" onClick={() => go("Tanda Tangan")} className={`${btn} bg-green-600 text-white hover:bg-green-700`}>Layak, Teruskan ke Kepala Sekolah</button>
+                <button type="button" onClick={() => go("Pembuatan Draf", "Draf perlu diperbaiki.")} className={`${btn} border border-line bg-white text-navy hover:bg-surface`}>Kembalikan ke Draf</button>
+              </>
+            )}
+            {s === "Tanda Tangan" && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!req.hasil?.length && !req.pengambilan) return toast.warning("Isi dokumen hasil atau petunjuk pengambilan dulu.");
+                  go("Selesai");
+                }}
+                className={`${btn} bg-green-600 text-white hover:bg-green-700`}
+              >
+                Tandai Selesai
+              </button>
+            )}
+            {(s === "Menunggu" || s === "Diverifikasi") && (
               <button type="button" onClick={() => { setErr(""); setModal("perbaikan"); }} className={`${btn} border border-orange-300 bg-orange-50 text-orange-800 hover:bg-orange-100`}>Minta Perbaikan</button>
+            )}
+            {["Menunggu", "Diverifikasi", "Pembuatan Draf", "Verifikasi Kasubag"].includes(s) && (
               <button type="button" onClick={() => { setErr(""); setModal("tolak"); }} className={`${btn} border border-red-200 bg-red-50 text-red-700 hover:bg-red-100`}>Tolak</button>
-            </>
-          )}
+            )}
         </div>
       </section>
 
@@ -171,7 +178,7 @@ export default function PetugasDetail() {
           <label htmlFor="umum" className="mt-4 block text-sm font-semibold text-navy">Catatan umum</label>
           <textarea id="umum" rows={2} value={umum} onChange={(e) => setUmum(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />
           <p className="mt-4 text-sm font-semibold text-navy">Catatan per kolom (opsional)</p>
-          {(req.data ? KOLOM_GURU[req.jenis] || NOTE_FIELDS : NOTE_FIELDS).map((f) => (              
+          {(req.data ? KOLOM_FORM[req.ownerRole]?.[req.jenis] || NOTE_FIELDS : NOTE_FIELDS).map((f) => (              
             <div key={f} className="mt-2">
               <label htmlFor={`n-${f}`} className="text-xs text-slate-500">{FIELD_LABELS[f]}</label>
               <input id={`n-${f}`} value={fields[f] || ""} onChange={(e) => setFields({ ...fields, [f]: e.target.value })} placeholder="Contoh: perihal belum jelas" className="h-10 w-full rounded-lg border border-line px-3 text-sm" />

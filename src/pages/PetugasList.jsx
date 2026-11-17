@@ -5,7 +5,7 @@ import { fmtDate } from "../lib/format";
 import StatusBadge from "../components/StatusBadge";
 import { DaftarBarisSkeleton } from "../components/Skeleton";
 
-const STATUSES = ["Menunggu", "Diverifikasi", "Perlu Perbaikan", "Disetujui", "Ditolak", "Selesai"];
+const STATUSES = ["Menunggu", "Diverifikasi", "Pembuatan Draf", "Verifikasi Kasubag", "Tanda Tangan", "Perlu Perbaikan", "Ditolak", "Selesai"];
 
 export default function PetugasList() {
   const { data, loading, error } = useFetch("/admin/pengajuan");

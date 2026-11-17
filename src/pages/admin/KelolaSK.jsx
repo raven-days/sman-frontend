@@ -1,20 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PlusIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { api } from "../../lib/api";
+import { api, bukaLampiran } from "../../lib/api";
 import { useToast } from "../../context/Toast";
 import { useConfirm } from "../../context/Confirm";
 import { useSubmit } from "../../lib/useSubmit";
 import { useDirty, useUnsavedChanges } from "../../lib/useUnsaved";
 import { galatPerKolom, fokusSalah } from "../../lib/validasi";
+import { BIDANG_DOKUMEN } from "../../data/content";
 import Field, { inputCls } from "../../components/Field";
 import Modal from "../../components/Modal";
 
 const MAX_MB = 5;
-const kosong = () => ({ id: null, nomor: "", tentang: "", tahun: new Date().getFullYear(), kategori: "", file: null, adaFile: false });
+const LBL = {
+  sk: { nama: "SK", judul: "Surat Keputusan", nomor: "Nomor SK" },
+  sop: { nama: "SOP", judul: "Standar Operasional Prosedur", nomor: "Nomor SOP" },
+};
+const kosong = (jenis) => ({ id: null, jenis, nomor: "", tentang: "", penerbit: "", bidang: "", tahun: new Date().getFullYear(), kategori: "", file: null, adaFile: false });
 
 // Aturan validasi di sisi tampilan. Laravel tetap memeriksa ulang semuanya.
 const ATURAN = {
-  nomor: (v) => (String(v).trim() ? "" : "Nomor SK wajib diisi."),
+  nomor: (v) => (String(v).trim() ? "" : "Nomor wajib diisi."),
   tentang: (v) => (String(v).trim() ? "" : "Kolom Tentang wajib diisi."),
   tahun: (v) => {
     if (!String(v).trim()) return "Tahun wajib diisi.";
@@ -29,24 +34,26 @@ export default function KelolaSK() {
   const toast = useToast();
   const confirm = useConfirm();
   const formRef = useRef(null);
+  const [jenis, setJenis] = useState("sk");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [form, setForm] = useState(null);
   const [errs, setErrs] = useState({});
+  const L = LBL[jenis];
 
   const muat = useCallback(async () => {
     try {
-      setRows(await api("/sk"));
+      setRows(await api(`/sk?jenis=${jenis}`));
       setError("");
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [jenis]);
 
-  useEffect(() => { muat(); }, [muat]);
+  useEffect(() => { setLoading(true); setRows([]); muat(); }, [muat]);
 
   const dirty = useDirty(form);
   useUnsavedChanges(dirty);
@@ -54,7 +61,7 @@ export default function KelolaSK() {
   const ubah = (k) => (e) => {
     const v = e.target.value;
     setForm((f) => ({ ...f, [k]: v }));
-    if (errs[k]) setErrs((x) => ({ ...x, [k]: ATURAN[k] ? ATURAN[k](v) : "" })); // error hilang begitu diperbaiki
+    if (errs[k]) setErrs((x) => ({ ...x, [k]: ATURAN[k] ? ATURAN[k](v) : "" }));
   };
   const saatSelesaiIsi = (k) => () => ATURAN[k] && setErrs((x) => ({ ...x, [k]: ATURAN[k](form[k]) }));
 
@@ -75,11 +82,11 @@ export default function KelolaSK() {
     if (Object.keys(salah).length) return fokusSalah(formRef.current);
 
     const fd = new FormData();
-    ["nomor", "tentang", "tahun", "kategori"].forEach((k) => fd.append(k, form[k] ?? ""));
+    ["jenis", "nomor", "tentang", "penerbit", "bidang", "tahun", "kategori"].forEach((k) => fd.append(k, form[k] ?? ""));
     if (form.file) fd.append("file", form.file);
     try {
       await api(form.id ? `/admin/sk/${form.id}` : "/admin/sk", { method: "POST", body: fd });
-      toast.success(`SK ${form.nomor} berhasil ${form.id ? "diperbarui" : "ditambahkan"}.`);
+      toast.success(`${L.nama} ${form.nomor} berhasil ${form.id ? "diperbarui" : "ditambahkan"}.`);
       setForm(null);
       setErrs({});
       await muat();
@@ -110,42 +117,58 @@ export default function KelolaSK() {
     setErrs({});
   };
 
-  const hapusSK = async (s) => {
+  const hapusDok = async (s) => {
     const ya = await confirm({
-      title: "Hapus SK ini?",
-      description: "SK akan dihapus dari website dan tidak dapat dikembalikan.",
+      title: `Hapus ${L.nama} ini?`,
+      description: `${L.nama} akan dihapus dari website dan tidak dapat dikembalikan.`,
       items: [
-        { label: "Nomor SK", value: s.nomor },
+        { label: L.nomor, value: s.nomor },
         { label: "Tentang", value: s.tentang },
         { label: "Tahun", value: s.tahun },
       ],
       consequence: "File PDF yang terlampir ikut terhapus.",
-      confirmText: "Hapus SK",
+      confirmText: `Hapus ${L.nama}`,
       tone: "danger",
       action: () => api(`/admin/sk/${s.id}`, { method: "DELETE" }),
     });
     if (ya) {
-      toast.success(`SK ${s.nomor} dihapus.`);
+      toast.success(`${L.nama} ${s.nomor} dihapus.`);
       muat();
     }
   };
 
   const bukaForm = (data) => { setErrs({}); setForm(data); };
+  const bukaPdf = (path) => bukaLampiran(path).catch((e) => toast.galat(e));
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy">Kelola Surat Keputusan</h1>
-          <p className="mt-1 text-sm text-slate-600">SK yang ditambahkan di sini langsung tampil di halaman Surat Keputusan website.</p>
+          <h1 className="text-2xl font-extrabold text-navy">Kelola SK & SOP</h1>
+          <p className="mt-1 text-sm text-slate-600">Dokumen di sini tampil di halaman Dokumen. Hanya akun yang login yang bisa melihatnya.</p>
         </div>
         <button
           type="button"
-          onClick={() => bukaForm(kosong())}
+          onClick={() => bukaForm(kosong(jenis))}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark active:scale-[0.98]"
         >
-          <PlusIcon className="h-5 w-5" /> Tambah SK
+          <PlusIcon className="h-5 w-5" /> Tambah {L.nama}
         </button>
+      </div>
+
+      <div role="tablist" aria-label="Jenis dokumen" className="mt-5 inline-flex rounded-xl bg-surface p-1">
+        {Object.entries(LBL).map(([k, t]) => (
+          <button
+            key={k}
+            type="button"
+            role="tab"
+            aria-selected={jenis === k}
+            onClick={() => setJenis(k)}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${jenis === k ? "bg-white text-navy shadow-sm" : "text-slate-500 hover:text-navy"}`}
+          >
+            {t.judul}
+          </button>
+        ))}
       </div>
 
       {error && (
@@ -156,33 +179,37 @@ export default function KelolaSK() {
       )}
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-line bg-white">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[860px] text-left text-sm">
           <thead className="bg-surface text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-4 py-3">Nomor SK</th>
+              <th className="px-4 py-3">{L.nomor}</th>
               <th className="px-4 py-3">Tentang</th>
+              <th className="px-4 py-3">Ditetapkan oleh</th>
+              <th className="px-4 py-3">Bidang</th>
               <th className="px-4 py-3">Tahun</th>
               <th className="px-4 py-3">Berkas</th>
               <th className="px-4 py-3 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {loading && <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-500">Memuat data...</td></tr>}
-            {!loading && !error && rows.length === 0 && <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-500">Belum ada SK. Klik "Tambah SK".</td></tr>}
+            {loading && <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-500">Memuat data...</td></tr>}
+            {!loading && !error && rows.length === 0 && <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-500">Belum ada {L.nama}. Klik "Tambah {L.nama}".</td></tr>}
             {rows.map((s) => (
               <tr key={s.id}>
                 <td className="px-4 py-3 font-semibold text-navy">{s.nomor}</td>
                 <td className="px-4 py-3">{s.tentang}</td>
+                <td className="px-4 py-3">{s.penerbit || "-"}</td>
+                <td className="px-4 py-3">{s.bidang || "-"}</td>
                 <td className="px-4 py-3">{s.tahun}</td>
                 <td className="px-4 py-3">
-                  {s.file ? <a href={s.file} target="_blank" rel="noreferrer" className="font-semibold text-primary">Lihat PDF</a> : <span className="text-xs text-slate-400">Belum ada</span>}
+                  {s.file ? <button type="button" onClick={() => bukaPdf(s.file)} className="font-semibold text-primary">Lihat PDF</button> : <span className="text-xs text-slate-400">Belum ada</span>}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
-                    <button type="button" aria-label={`Ubah ${s.nomor}`} onClick={() => bukaForm({ id: s.id, nomor: s.nomor, tentang: s.tentang, tahun: s.tahun, kategori: s.kategori ?? "", file: null, adaFile: !!s.file })} className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-blue-50 hover:text-primary">
+                    <button type="button" aria-label={`Ubah ${s.nomor}`} onClick={() => bukaForm({ id: s.id, jenis: s.jenis, nomor: s.nomor, tentang: s.tentang, penerbit: s.penerbit ?? "", bidang: s.bidang ?? "", tahun: s.tahun, kategori: s.kategori ?? "", file: null, adaFile: !!s.file })} className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-blue-50 hover:text-primary">
                       <PencilSquareIcon className="h-5 w-5" />
                     </button>
-                    <button type="button" aria-label={`Hapus ${s.nomor}`} onClick={() => hapusSK(s)} className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600">
+                    <button type="button" aria-label={`Hapus ${s.nomor}`} onClick={() => hapusDok(s)} className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600">
                       <TrashIcon className="h-5 w-5" />
                     </button>
                   </div>
@@ -194,13 +221,25 @@ export default function KelolaSK() {
       </div>
 
       {form && (
-        <Modal title={form.id ? "Ubah SK" : "Tambah SK"} onClose={tutupForm} locked={saving}>
+        <Modal title={form.id ? `Ubah ${L.nama}` : `Tambah ${L.nama}`} onClose={tutupForm} locked={saving}>
           <form ref={formRef} onSubmit={simpan} noValidate className="space-y-4">
-            <Field label="Nomor SK" required error={errs.nomor}>
+            <Field label={L.nomor} required error={errs.nomor}>
               {(p) => <input {...p} value={form.nomor} onChange={ubah("nomor")} onBlur={saatSelesaiIsi("nomor")} className={`${inputCls(errs.nomor)} h-11`} />}
             </Field>
             <Field label="Tentang" required error={errs.tentang}>
               {(p) => <input {...p} value={form.tentang} onChange={ubah("tentang")} onBlur={saatSelesaiIsi("tentang")} className={`${inputCls(errs.tentang)} h-11`} />}
+            </Field>
+            <Field label="Ditetapkan oleh (pejabat / pihak)" error={errs.penerbit} hint="Contoh: Kepala SMA Negeri 104 Jakarta">
+              {(p) => <input {...p} value={form.penerbit} onChange={ubah("penerbit")} className={`${inputCls(errs.penerbit)} h-11`} />}
+            </Field>
+            <Field label="Bidang / bagian terkait" error={errs.bidang}>
+              {(p) => (
+                <select {...p} value={form.bidang} onChange={ubah("bidang")} className={`${inputCls(errs.bidang)} h-11`}>
+                  <option value="">Pilih bidang</option>
+                  {form.bidang && !BIDANG_DOKUMEN.includes(form.bidang) && <option value={form.bidang}>{form.bidang}</option>}
+                  {BIDANG_DOKUMEN.map((b) => <option key={b}>{b}</option>)}
+                </select>
+              )}
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Tahun" required error={errs.tahun}>

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowDownTrayIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { SK_LIST as SK_DEMO } from "../data/sk";
-import { useFetch, DEMO } from "../lib/api";
-import { DaftarBarisSkeleton } from "../components/Skeleton";
+import { SK_LIST as SK_DEMO } from "./src/data/sk";
+import { useFetch, DEMO } from "./src/lib/api";
+import { DaftarBarisSkeleton } from "./src/components/Skeleton";
 
 export default function SuratKeputusan() {
   const { data, loading, error } = useFetch("/sk");

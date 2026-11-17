@@ -73,11 +73,28 @@ export const ANNOUNCEMENTS = [
 export const STATUS_STYLE = {
   Menunggu: "bg-amber-50 text-amber-700 border-amber-200",
   Diverifikasi: "bg-blue-50 text-blue-700 border-blue-200",
+  "Pembuatan Draf": "bg-indigo-50 text-indigo-700 border-indigo-200",
+  "Verifikasi Kasubag": "bg-purple-50 text-purple-700 border-purple-200",
+  "Tanda Tangan": "bg-cyan-50 text-cyan-700 border-cyan-200",
   "Perlu Perbaikan": "bg-orange-50 text-orange-700 border-orange-200",
   Disetujui: "bg-green-50 text-green-700 border-green-200",
   Ditolak: "bg-red-50 text-red-700 border-red-200",
   Selesai: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
+
+// Alur 6 langkah pengajuan
+export const ALUR_STATUS = ["Menunggu", "Diverifikasi", "Pembuatan Draf", "Verifikasi Kasubag", "Tanda Tangan", "Selesai"];
+export const LABEL_ALUR = {
+  Menunggu: "Pengajuan terkirim",
+  Diverifikasi: "Verifikasi kelengkapan data",
+  "Pembuatan Draf": "Proses pembuatan draf surat",
+  "Verifikasi Kasubag": "Verifikasi kelayakan surat (Kasubag)",
+  "Tanda Tangan": "Proses tanda tangan Kepala Sekolah",
+  Selesai: "Selesai",
+};
+
+// Bidang untuk SK & SOP (dipakai Kelola SK & SOP)
+export const BIDANG_DOKUMEN = ["Akademik", "Kesiswaan & Humas", "Sarpras & Adm", "Tata Usaha", "Umum"];
 
 /* ===== Akun dan hak akses (mode demo) ===== */
 export const ROLES = [
@@ -116,7 +133,10 @@ export const ACCESS = {
 // Contoh jenis layanan, menunggu konfirmasi Tata Usaha.
 export const JENIS_SURAT = ["Surat Keterangan", "Surat Tugas", "Surat Dispensasi", "Surat Lainnya"];
 
-export const JENIS_GURU = ["Surat Undangan", "Surat Tugas", "Surat Keterangan"];
+export const JENIS_FORM = {
+  guru: ["Surat Undangan", "Surat Tugas", "Surat Keterangan", "SK & SOP"],
+  siswa: ["Surat Tugas", "Surat Keterangan", "Surat Keterangan Peringkat"],
+};
 export const UNIT_KERJA = ["Akademik", "Kesiswaan & Humas", "Sarpras & Adm", "Tata Usaha"];
 
 export const FIELD_LABELS = {
@@ -131,19 +151,35 @@ export const FIELD_LABELS = {
   tujuan: "Tujuan undangan",
   tanggal_acara: "Tanggal acara",
   waktu: "Waktu acara",
-  tempat: "Tempat acara",
+  tempat: "Tempat",
   disetujui_kepsek: "Persetujuan Kepala Sekolah",
   tipe: "Tipe penerima tugas",
   penerima: "Yang ditugaskan",
   keperluan: "Keperluan / tujuan surat",
   catatan: "Catatan / keterangan khusus",
+  nama_dokumen: "Nama SK dan/atau SOP",
+  nis: "NIS",
+  tahu_pembina: "Diketahui pembina ekstrakurikuler",
+  tahu_wakasis: "Diketahui Wakil Kesiswaan & Humas",
+  kegiatan: "Nama kegiatan",
+  penyelenggara: "Diselenggarakan oleh",
+  tanggal_kegiatan: "Tanggal kegiatan",
+  sudah_bertemu: "Sudah bertemu Wakil Bidang Akademik",
 };
 
-// Kolom yang bisa diberi catatan oleh petugas, per jenis surat guru/tendik.
-export const KOLOM_GURU = {
-  "Surat Undangan": ["pemohon", "unit", "acara", "tujuan", "tanggal_acara", "waktu", "tempat"],
-  "Surat Tugas": ["pemohon", "disetujui_kepsek", "penerima", "lampiran"],
-  "Surat Keterangan": ["pemohon", "keperluan", "catatan"],
+// Kolom yang bisa diberi catatan oleh petugas, per peran pemohon dan jenis surat.
+export const KOLOM_FORM = {
+  guru: {
+    "Surat Undangan": ["pemohon", "unit", "acara", "tujuan", "tanggal_acara", "waktu", "tempat"],
+    "Surat Tugas": ["pemohon", "disetujui_kepsek", "penerima", "lampiran"],
+    "Surat Keterangan": ["pemohon", "keperluan", "catatan"],
+    "SK & SOP": ["pemohon", "unit", "nama_dokumen", "lampiran"],
+  },
+  siswa: {
+    "Surat Tugas": ["pemohon", "nis", "tahu_pembina", "tahu_wakasis", "penerima", "kegiatan", "penyelenggara", "tanggal_kegiatan", "tempat", "lampiran"],
+    "Surat Keterangan": ["nis", "keperluan", "catatan"],
+    "Surat Keterangan Peringkat": ["pemohon", "nis", "sudah_bertemu", "keperluan"],
+  },
 };
 
 // Data dummy (semua fiktif) supaya alur bisa dicoba.

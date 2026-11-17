@@ -12,7 +12,7 @@ const SHORTCUTS = {
   "administrasi-persuratan": [
     { to: "/ajukan", title: "Ajukan layanan", sub: "Isi formulir pengajuan" },
     { to: "/cek-status", title: "Cek status pengajuan", sub: "Pantau dengan nomor pengajuan" },
-    { to: "/surat-keputusan", title: "Surat Keputusan", sub: "Terbuka untuk semua pengguna" },
+    { to: "/dokumen", title: "Dokumen SK & SOP", sub: "Khusus akun yang login" },
   ],
 };
 

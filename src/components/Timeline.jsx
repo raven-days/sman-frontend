@@ -4,7 +4,9 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/solid";
 
-const FLOW = ["Menunggu", "Diverifikasi", "Disetujui", "Selesai"];
+import { ALUR_STATUS, LABEL_ALUR } from "../data/content";
+
+const FLOW = ALUR_STATUS;
 
 function Icon({ status }) {
   if (status === "Perlu Perbaikan") return <ExclamationTriangleIcon className="h-6 w-6 text-amber-500" />;
@@ -17,7 +19,7 @@ export default function Timeline({ history, status, showDetail = true }) {
   const idx = FLOW.indexOf(status);
   const pending =
     status === "Perlu Perbaikan"
-      ? ["Diverifikasi", "Disetujui", "Selesai"]
+      ? FLOW.slice(1)
       : idx >= 0
       ? FLOW.slice(idx + 1)
       : [];
@@ -50,7 +52,7 @@ export default function Timeline({ history, status, showDetail = true }) {
             {history.length + i < total - 1 && <span className="my-1 w-0.5 flex-1 bg-line" />}
           </div>
           <div className="pb-6">
-            <p className="text-sm font-semibold text-slate-400">{p}</p>
+            <p className="text-sm font-semibold text-slate-400">{LABEL_ALUR[p] || p}</p>
           </div>
         </li>
       ))}
