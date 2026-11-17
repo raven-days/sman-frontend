@@ -35,6 +35,13 @@ const AKSI = [
   ["aset_dokumen_ubah", "Ubah dokumen aset"],
   ["aset_dokumen_hapus", "Hapus dokumen aset"],
   ["aset_dokumen_buka", "Buka dokumen aset"],
+  ["lokasi_tambah", "Lokasi ditambah"],
+  ["lokasi_ubah", "Lokasi diubah"],
+  ["lokasi_hapus", "Lokasi dihapus"],
+  ["dok_tambah", "Dokumentasi ditambah"],
+  ["dok_ubah", "Dokumentasi diubah"],
+  ["dok_hapus", "Dokumentasi dihapus"],
+  ["dok_foto_hapus", "Foto dokumentasi dihapus"],
 ];
 
 export default function KelolaAudit() {

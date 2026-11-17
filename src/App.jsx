@@ -39,6 +39,8 @@ import KelolaAset from "./pages/admin/KelolaAset";
 import KelolaSiswa from "./pages/admin/KelolaSiswa";
 import Anggaran from "./pages/Anggaran";
 import KelolaAnggaran from "./pages/admin/KelolaAnggaran";
+import KelolaDokumentasi from "./pages/admin/KelolaDokumentasi";
+import FasilitasSekolah from "./pages/FasilitasSekolah";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -86,6 +88,8 @@ export default function App() {
             <Route path="/layanan/kepegawaian" element={<Kepegawaian />} />
             <Route path="/layanan/anggaran" element={<Anggaran />} />
             <Route path="/layanan/administrasi-persuratan" element={<AdministrasiPersuratan />} />
+            <Route path="/layanan/kebersihan-keamanan" element={<FasilitasSekolah />} />
+            <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/pengumuman" element={<Pengumuman />} />
@@ -115,6 +119,7 @@ export default function App() {
               <Route path="banner" element={<RequireRole izin="banner"><KelolaBanner /></RequireRole>} />
               <Route path="kontak" element={<RequireRole izin="kontak"><KelolaKontak /></RequireRole>} />
               <Route path="aset" element={<RequireRole izin="aset"><KelolaAset /></RequireRole>} />
+              <Route path="dokumentasi" element={<RequireRole izin="dokumentasi"><KelolaDokumentasi /></RequireRole>} />
             </Route>
 
             {/* Dashboard admin (khusus admin) */}

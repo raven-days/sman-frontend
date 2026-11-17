@@ -14,7 +14,7 @@ import { useApp } from "../context/AppState";
 import { useToast } from "../context/Toast";
 import logoTutWuri from "../assets/logo-tutwuri.png";
 import logoJakarta from "../assets/logo-jakarta.png";
-import logo5Abad from "../assets/logo-5abad-jakarta.png";
+import logo5Abad from "../assets/Logo-5Abad-Jakarta.png";
 import logoDisdik from "../assets/dinas-pendidikan-logo.png"; // sesuaikan ekstensi bila bukan .png
 import Wordmark from "./Wordmark";
 import { keluarDiServer } from "../lib/api";

@@ -111,21 +111,21 @@ export const ACCESS = {
     aset: "Informasi sekolah dan denah",
     kepegawaian: "Lihat daftar guru dan tenaga kependidikan",
     "administrasi-persuratan": "Ajukan layanan dan pantau status",
-    "kebersihan-keamanan": null,
+    "kebersihan-keamanan": "Lihat dokumentasi kondisi fasilitas",
   },
   guru: {
     anggaran: null,
     aset: "Informasi sekolah dan denah",
     kepegawaian: "Lihat daftar guru dan tenaga kependidikan",
     "administrasi-persuratan": "Ajukan layanan dan pantau status",
-    "kebersihan-keamanan": null,
+    "kebersihan-keamanan": "Lihat dokumentasi kondisi fasilitas",
   },
   tu: {
     anggaran: "Akses petugas",
     aset: "Informasi sekolah dan denah",
     kepegawaian: "Kelola data pegawai",
     "administrasi-persuratan": "Proses pengajuan dan arsip surat",
-    "kebersihan-keamanan": "Akses petugas",
+    "kebersihan-keamanan": "Kelola dokumentasi fasilitas", 
   },
 };
 

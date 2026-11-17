@@ -1,6 +1,6 @@
 import {
   Squares2X2Icon, ScaleIcon, UsersIcon, MegaphoneIcon, PhotoIcon,
-  ClipboardDocumentListIcon, ArrowsRightLeftIcon, ChatBubbleLeftRightIcon, ArchiveBoxIcon, AcademicCapIcon, BanknotesIcon,
+  ClipboardDocumentListIcon, ArrowsRightLeftIcon, ChatBubbleLeftRightIcon, ArchiveBoxIcon, AcademicCapIcon, BanknotesIcon, CameraIcon,
 } from "@heroicons/react/24/outline";
 import PanelLayout from "./PanelLayout";
 
@@ -15,6 +15,7 @@ const MENU = [
   { to: "/tu/aset", label: "Kelola Aset", icon: ArchiveBoxIcon, izin: "aset" },
   { to: "/tu/anggaran", label: "Kelola Anggaran", icon: BanknotesIcon, izin: "anggaran" },
   { to: "/tu/kontak", label: "Kontak & FAQ", icon: ChatBubbleLeftRightIcon, izin: "kontak" },
+  { to: "/tu/dokumentasi", label: "Dokumentasi Fasilitas", icon: CameraIcon, izin: "dokumentasi" },
   { to: "/admin", label: "Dashboard Admin", icon: ArrowsRightLeftIcon, admin: true },
 ];
 
