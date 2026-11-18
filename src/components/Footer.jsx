@@ -44,19 +44,15 @@ function Hias({ src, className = "" }) {
   );
 }
 
-function Wajah({ src, lebar, tinggi, kanan }) {
+function Wajah({ src, className = "" }) {
   return (
-    <span
-      aria-hidden="true"
-      className="absolute bottom-0 block overflow-hidden pointer-events-none"
-      style={{ width: lebar, height: tinggi, right: kanan }}
-    >
+    <span aria-hidden="true" className={`block overflow-hidden ${className}`}>
       <img
         src={src}
         alt=""
         loading="lazy"
         decoding="async"
-        style={{ width: lebar, maxWidth: "none" }}
+        className="w-full max-w-none"
       />
     </span>
   );
@@ -119,7 +115,7 @@ export default function Footer() {
       /> */}
 
       {/* KONTEN UTAMA */}
-      <div className="relative z-10 mx-auto grid max-w-[1200px] gap-7 px-5 py-8 text-sm sm:px-8 md:grid-cols-[1fr_1.5fr_auto] md:gap-x-10 md:gap-y-8 lg:gap-x-16 lg:py-10">
+      <div className="relative z-10 mx-auto grid max-w-[1200px] gap-7 px-5 py-8 text-sm sm:px-8 md:grid-cols-[auto_1fr_auto] md:gap-x-10 md:gap-y-8 lg:gap-x-16 lg:py-10">
 
         {/* IDENTITAS SEKOLAH */}
         <div className="min-w-0">
@@ -133,7 +129,7 @@ export default function Footer() {
         </div>
 
         {/* INFORMASI KONTAK */}
-        <div className="min-w-0">
+        <div className="min-w-0 md:max-w-[34rem] md:justify-self-center">
           <h3 className="mb-3 font-semibold text-white">
             Informasi Kontak
           </h3>
@@ -180,72 +176,27 @@ export default function Footer() {
 
       {/* BAGIAN BAWAH: DEKORASI BETAWI + HAK CIPTA */}
       <div className="relative border-t border-white/10">
+        {/* Dekorasi menempel ke tepi kiri dan kanan, jadi tetap rapi saat layar mengecil */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+          {/* kiri: awan dan daun */}
+          <Hias src={awanLebar} className="left-[-30px] w-[200px] opacity-95 sm:w-[250px]" />
+          <Hias src={daun} className="left-[8px] w-[90px] sm:w-[110px]" />
+          <Hias src={awanKecil} className="left-[116px] w-[96px] opacity-90 sm:left-[150px] sm:w-[120px]" />
 
-        {/* DEKORASI KIRI, TENGAH, DAN KANAN */}
-        <div className="relative grid min-h-[96px] md:grid-cols-[240px_1fr] lg:grid-cols-[300px_1fr_430px]">
+          {/* kanan: awan, Monas, lalu ondel-ondel */}
+          <Hias src={awanKecil} className="right-[-10px] hidden w-[120px] opacity-90 sm:block" />
+          <Hias src={monas} className="right-[104px] hidden w-[190px] opacity-60 md:block lg:right-[140px] lg:w-[230px]" />
 
-          {/* AWAN DAN DAUN KIRI */}
-          <div
-            aria-hidden="true"
-            className="relative hidden overflow-hidden md:block"
-          >
-            <Hias
-              src={awanLebar}
-              className="left-[-30px] w-[250px] opacity-95"
-            />
-
-            <Hias
-              src={daun}
-              className="left-[8px] w-[110px]"
-            />
-
-            <Hias
-              src={awanKecil}
-              className="left-[150px] w-[120px] opacity-90"
-            />
-          </div>
-
-          {/* HAK CIPTA */}
-          <div className="flex flex-col items-center justify-center gap-1 px-4 py-4 text-center text-xs">
-            {hakCipta}
-          </div>
-
-          {/* MONAS DAN ONDEL-ONDEL KANAN */}
-          <div
-            aria-hidden="true"
-            className="relative hidden overflow-hidden lg:block"
-          >
-            <Hias
-              src={awanKecil}
-              className="right-[-10px] w-[120px] opacity-90"
-            />
-
-            <Hias
-              src={monas}
-              className="right-[140px] w-[230px] opacity-60"
-            />
-
-            <Wajah
-              src={ondelPria}
-              lebar={62}
-              tinggi={78}
-              kanan={72}
-            />
-
-            <Wajah
-              src={ondelWanita}
-              lebar={64}
-              tinggi={78}
-              kanan={14}
-            />
+          <div className="absolute bottom-0 right-3 flex items-end -space-x-1.5 sm:right-6 lg:right-[14px]">
+            <Wajah src={ondelPria} className="h-[62px] w-[50px] sm:h-[78px] sm:w-[62px]" />
+            <Wajah src={ondelWanita} className="h-[62px] w-[52px] sm:h-[78px] sm:w-[64px]" />
           </div>
         </div>
-      </div>
 
-      {/* ONDEL-ONDEL VERSI LAYAR KECIL (di bawah lg; di lg ke atas sudah ada di kolom kanan) */}
-      <div aria-hidden="true" className="relative mx-auto h-[78px] w-[140px] lg:hidden">
-        <Wajah src={ondelPria} lebar={62} tinggi={78} kanan={72} />
-        <Wajah src={ondelWanita} lebar={64} tinggi={78} kanan={14} />
+        {/* Hak cipta: di layar kecil di atas dekorasi, di layar lebar di tengah antara dekorasi kiri dan kanan */}
+        <div className="relative z-10 mx-auto flex max-w-[1200px] flex-col items-center justify-center gap-1 px-4 pb-[84px] pt-4 text-center text-xs sm:pb-[96px] lg:min-h-[96px] lg:px-[310px] lg:py-4">
+          {hakCipta}
+        </div>
       </div>
 
 {/* ORNAMEN GIGI BALANG BAWAH */}
