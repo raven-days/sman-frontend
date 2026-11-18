@@ -36,13 +36,14 @@ export const LOGOS = [
     src: logoSMA,
     rasio: 0.9,
     zoom: 1.1,
+    selalu: true,
   },
 ];
 
-export function LogoMark({ logo, tinggi = 42 }) {
+export function LogoMark({ logo, tinggi = 42, ringkas = false }) {
   return (
     <span
-      className="flex shrink-0 items-center justify-center"
+      className={`${ringkas && !logo.selalu ? "hidden md:flex" : "flex"} shrink-0 items-center justify-center`}
       style={{
         width: Math.round(tinggi * logo.rasio),
         height: tinggi,
@@ -64,6 +65,7 @@ export function LogoMark({ logo, tinggi = 42 }) {
 export default function LogoBar({
   tinggi = 42,
   className = "",
+  ringkas = false,
 }) {
   return (
     <div
@@ -74,6 +76,7 @@ export default function LogoBar({
           key={logo.alt}
           logo={logo}
           tinggi={tinggi}
+          ringkas={ringkas}
         />
       ))}
     </div>

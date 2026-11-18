@@ -24,7 +24,7 @@ import gigiBalangBawah from "../assets/betawi/gigi-balang-strip-bawah.webp";
 const quick = [
   { label: "Daftar Layanan", to: "/layanan" },
   { label: "Cek Status", to: "/cek-status" },
-  { label: "Ajukan Tanpa Akun", to: "/ajukan-tamu" },
+  { label: "Ajukan Tanpa Akun", to: "/layanan/administrasi-persuratan#layanan-umum" },
   { label: "Kontak", to: "/kontak" },
 ];
 
@@ -242,11 +242,10 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* HAK CIPTA VERSI MOBILE */}
-      <div className="md:hidden">
-        <div className="flex flex-col gap-2 px-5 py-3 text-center text-xs">
-          {hakCipta}
-        </div>
+      {/* ONDEL-ONDEL VERSI LAYAR KECIL (di bawah lg; di lg ke atas sudah ada di kolom kanan) */}
+      <div aria-hidden="true" className="relative mx-auto h-[78px] w-[140px] lg:hidden">
+        <Wajah src={ondelPria} lebar={62} tinggi={78} kanan={72} />
+        <Wajah src={ondelWanita} lebar={64} tinggi={78} kanan={14} />
       </div>
 
 {/* ORNAMEN GIGI BALANG BAWAH */}

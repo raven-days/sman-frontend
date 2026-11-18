@@ -22,7 +22,7 @@ export default function Captcha({ onToken }) {
 
   useEffect(() => {
     if (!KEY) {
-      onToken("dev");
+      if (import.meta.env.DEV) onToken("dev"); // token palsu hanya untuk lokal
       return;
     }
     let id;
@@ -44,5 +44,10 @@ export default function Captcha({ onToken }) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return KEY ? <div ref={ref} /> : null;
+  if (KEY) return <div ref={ref} />;
+  return import.meta.env.DEV ? null : (
+    <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+      Verifikasi keamanan belum dikonfigurasi. Hubungi pengelola website.
+    </p>
+  );
 }

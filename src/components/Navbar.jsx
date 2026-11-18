@@ -160,7 +160,7 @@ function Navbar() {
         <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Logo + nama */}
           <Link to="/" onClick={close} className="flex min-w-0 items-center gap-3">
-<LogoBar tinggi={36} className="hidden shrink-0 md:flex" />
+<LogoBar tinggi={36} ringkas className="flex shrink-0" />
             <span className="hidden h-9 w-px bg-line sm:block" />
             <div className="min-w-0 leading-tight">
               <Wordmark className="block truncate text-xl sm:text-2xl" />
