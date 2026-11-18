@@ -126,9 +126,9 @@ export default function Footer() {
           <Wordmark tone="gelap" className="text-2xl" />
 
           <p className="mt-2 leading-6 text-white/80">
-            Layanan 104
-            <br />
-            Tata Usaha SMA Negeri 104 Jakarta
+            Layanan Tata Usaha 
+            <br/>
+            SMA Negeri 104 Jakarta
           </p>
         </div>
 

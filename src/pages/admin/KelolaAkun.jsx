@@ -12,6 +12,7 @@ import ImporAkun from "./ImporAkun";
 import { DaftarBarisSkeleton } from "../../components/Skeleton";
 
 const MODUL = [
+  ["layanan", "Akses layanan pengajuan"],
   ["aset", "Aset sekolah"],
   ["pengajuan", "Antrian pengajuan"],
   ["sk", "Surat Keputusan"],

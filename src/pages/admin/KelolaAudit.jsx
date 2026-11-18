@@ -42,6 +42,11 @@ const AKSI = [
   ["dok_ubah", "Dokumentasi diubah"],
   ["dok_hapus", "Dokumentasi dihapus"],
   ["dok_foto_hapus", "Foto dokumentasi dihapus"],
+  ["tamu_ajukan", "Pengajuan tamu"],
+  ["layanan_tambah", "Layanan ditambah"],
+  ["layanan_ubah", "Layanan diubah"],
+  ["layanan_hapus", "Layanan dihapus"],
+  ["retensi_lampiran", "Lampiran dihapus otomatis"],
 ];
 
 export default function KelolaAudit() {

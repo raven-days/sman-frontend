@@ -99,7 +99,7 @@ export const BIDANG_DOKUMEN = ["Akademik", "Kesiswaan & Humas", "Sarpras & Adm",
 /* ===== Akun dan hak akses (mode demo) ===== */
 export const ROLES = [
   { id: "siswa", label: "Siswa/Orang Tua", idLabel: "NIS", name: "Siswa Demo" },
-  { id: "guru", label: "Guru/Staf", idLabel: "NIP / Username", name: "Guru Demo" },
+  { id: "guru", label: "Guru", idLabel: "NIP / NRK", name: "Guru Demo" },
   { id: "tu", label: "Staf TU", idLabel: "Username", name: "Petugas TU Demo" },
 ];
 

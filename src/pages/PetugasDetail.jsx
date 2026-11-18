@@ -12,6 +12,7 @@ import Modal from "../components/Modal";
 import PanelHasil from "../components/PanelHasil";
 import { barisData } from "../components/FormGuru";
 import { FIELD_LABELS, KOLOM_FORM } from "../data/content";
+import { barisTamu } from "../lib/tamu";
 
 const NOTE_FIELDS = ["jenis", "perihal", "tanggal", "keterangan", "lampiran"];
 const btn = "rounded-lg px-5 py-2.5 text-sm font-semibold";
@@ -96,11 +97,17 @@ export default function PetugasDetail() {
         <StatusBadge status={s} />
       </div>
 
+{req.jalur === "tamu" && (
+  <p className="mt-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+    <b>Pengajuan tamu (tanpa akun).</b> {req.status === "Menunggu" ? "Belum terverifikasi. Periksa identitas, nomor WhatsApp, dan lampiran sebelum memverifikasi." : "Hubungi pemohon lewat WhatsApp bila perlu."}
+  </p>
+)}
+
       <section className="mt-6 rounded-xl border border-line bg-white p-6">
         <h2 className="text-lg font-bold text-navy">Data pengajuan</h2>
         <dl className="mt-3 divide-y divide-line text-sm">
             {(req.data
-              ? barisData(req.jenis, req.data, req.ownerRole)
+              ? (req.ownerRole === "tamu" ? barisTamu(req.data) : barisData(req.jenis, req.data, req.ownerRole))
               : [
                   ["Perihal / keperluan", req.perihal],
                   ["Tanggal dibutuhkan", fmtDate(req.tanggal)],

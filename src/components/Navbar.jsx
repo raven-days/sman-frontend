@@ -8,14 +8,10 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 
-import logoSMA from "../assets/logo.jpg";
 import { SERVICES } from "../data/content";
 import { useApp } from "../context/AppState";
 import { useToast } from "../context/Toast";
-import logoTutWuri from "../assets/logo-tutwuri.png";
-import logoJakarta from "../assets/logo-jakarta.png";
-import logo5Abad from "../assets/Logo-5Abad-Jakarta.png";
-import logoDisdik from "../assets/dinas-pendidikan-logo.png"; // sesuaikan ekstensi bila bukan .png
+import LogoBar from "./LogoBar";
 import Wordmark from "./Wordmark";
 import { keluarDiServer } from "../lib/api";
 import gigiBalangAtas from "../assets/betawi/gigi-balang-strip-atas.webp";
@@ -28,14 +24,6 @@ const SITE = {
   schoolWebsite: "#",
 };
 
-// Urutan: Kementerian, Jaya Raya, 5 Abad Jakarta, Dinas Pendidikan, SMAN 104.
-const LOGOS = [
-  { alt: "Logo Tut Wuri Handayani", label: "Tut Wuri Handayani", src: logoTutWuri },
-  { alt: "Logo Jaya Raya", label: "Jaya Raya", src: logoJakarta },
-  { alt: "Logo 5 Abad Jakarta", label: "5 Abad Jakarta", src: logo5Abad },
-  { alt: "Logo Dinas Pendidikan", label: "Dinas Pendidikan", src: logoDisdik },
-  { alt: "Logo SMA Negeri 104 Jakarta", src: logoSMA },
-];
 
 const MENU = [
   { label: "Beranda", href: "/" },
@@ -60,20 +48,6 @@ const linkBase =
 const activeLine =
   "after:absolute after:inset-x-2.5 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-primary";
 
-function LogoMark({ logo, size = "h-10 w-10" }) {
-  if (logo.src) {
-    return <img src={logo.src} alt={logo.alt} className={`${size} shrink-0 object-contain`} />;
-  }
-  return (
-    <span
-      role="img"
-      aria-label={logo.alt}
-      className={`${size} flex shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 px-0.5 text-center text-[8px] font-semibold leading-tight text-slate-400`}
-    >
-      {logo.label}
-    </span>
-  );
-}
 
 /* ================= DESKTOP ITEM ================= */
 function DesktopItem({ item, path }) {
@@ -186,13 +160,7 @@ function Navbar() {
         <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Logo + nama */}
           <Link to="/" onClick={close} className="flex min-w-0 items-center gap-3">
-            <div className="flex shrink-0 items-center gap-1.5">
-              {LOGOS.map((logo, i) => (
-                <span key={logo.alt} className={logo.mobile ? "" : "hidden md:block"}>
-                                    <LogoMark logo={logo} size="h-9 w-9" />
-                </span>
-              ))}
-            </div>
+<LogoBar tinggi={36} className="hidden shrink-0 md:flex" />
             <span className="hidden h-9 w-px bg-line sm:block" />
             <div className="min-w-0 leading-tight">
               <Wordmark className="block truncate text-xl sm:text-2xl" />

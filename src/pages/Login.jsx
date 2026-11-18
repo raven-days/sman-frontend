@@ -4,6 +4,7 @@ import { EyeIcon, EyeSlashIcon, ArrowLeftIcon } from "@heroicons/react/24/outlin
 import { ROLES } from "../data/content";
 import { useApp } from "../context/AppState";
 import { api, setToken, DEMO } from "../lib/api";
+import Captcha from "../components/Captcha";
 
 /* Ornamen bunga Kawung */
 function MedaliKawung({ className }) {
@@ -88,48 +89,54 @@ export default function Login() {
   const [lihat, setLihat] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [captcha, setCaptcha] = useState("");
+  const [kunci, setKunci] = useState(0);
 
   // Setelah masuk, kembali ke halaman yang tadi dituju (kalau ada).
   if (user) return <Navigate to={state?.from || "/akun"} replace />;
 
-const submit = async (e) => {
-  e.preventDefault();
-  if (!identitas.trim() || !sandi) {
-    setError("Isi identitas dan kata sandi terlebih dahulu.");
-    return;
-  }
-  setError("");
-  setLoading(true);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!identitas.trim() || !sandi) {
+      setError("Isi identitas dan kata sandi terlebih dahulu.");
+      return;
+    }
+    if (!DEMO && !captcha) {
+      setError("Selesaikan verifikasi keamanan dulu.");
+      return;
+    }
+    setError("");
+    setLoading(true);
 
-  if (DEMO) {
-    setTimeout(() => dispatch({ type: "LOGIN", user: { role: role.id, name: role.name } }), 700);
-    return;
-  }
+    if (DEMO) {
+      setTimeout(() => dispatch({ type: "LOGIN", user: { role: role.id, name: role.name } }), 700);
+      return;
+    }
 
-  try {
-    const res = await api("/login", { method: "POST", body: { identitas: identitas.trim(), password: sandi } });
-    setToken(res.token);
-    dispatch({ type: "LOGIN", user: res.user });
-  } catch (err) {
-    setError(err.status === 429 ? "Terlalu banyak percobaan. Coba lagi sebentar." : err.message);
-    setLoading(false);
-  }
-};
+    try {
+      const res = await api("/login", { method: "POST", body: { identitas: identitas.trim(), password: sandi, captcha } });
+      setToken(res.token);
+      dispatch({ type: "LOGIN", user: res.user });
+    } catch (err) {
+      setError(err.status === 429 ? "Terlalu banyak percobaan. Coba lagi sebentar." : err.message);
+      setLoading(false);
+      setCaptcha("");
+      setKunci((k) => k + 1); // token Turnstile sekali pakai, minta yang baru
+    }
+  };
 
   return (
     <div className="grid min-h-[calc(100vh-112px)] lg:grid-cols-2">
       <aside className="relative isolate hidden flex-col justify-center overflow-hidden bg-navy px-14 text-white lg:flex">
+        {/* Motif batik Kawung sebagai latar */}
+        <TeksturKawung
+          id="kawung-login"
+          className="pointer-events-none absolute inset-0 z-0 h-full w-full text-[#d6bb7e] opacity-[0.14]"
+        />
 
-  {/* Motif batik Kawung sebagai latar */}
-  <TeksturKawung
-    id="kawung-login"
-    className="pointer-events-none absolute inset-0 z-0 h-full w-full text-[#d6bb7e] opacity-[0.14]"
-  />
+        {/* Ornamen bunga Kawung di pojok kanan atas */}
+        <MedaliKawung className="pointer-events-none absolute -right-20 -top-24 z-0 h-[340px] w-[340px]" />
 
-  {/* Ornamen bunga Kawung di pojok kanan atas */}
-  <MedaliKawung
-    className="pointer-events-none absolute -right-20 -top-24 z-0 h-[340px] w-[340px]"
-  />
         <p className="text-xs font-bold uppercase tracking-widest text-blue-300">Portal layanan resmi</p>
         <h1 className="mt-4 text-4xl font-extrabold leading-tight">
           Layanan Tata Usaha
@@ -182,6 +189,7 @@ const submit = async (e) => {
                 id="identitas"
                 value={identitas}
                 onChange={(e) => setIdentitas(e.target.value)}
+                autoComplete="username"
                 placeholder="Masukkan identitas akun"
                 className="h-12 w-full rounded-lg border border-line px-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
@@ -197,6 +205,7 @@ const submit = async (e) => {
                   type={lihat ? "text" : "password"}
                   value={sandi}
                   onChange={(e) => setSandi(e.target.value)}
+                  autoComplete="current-password"
                   placeholder="Masukkan kata sandi"
                   className="h-12 w-full rounded-lg border border-line px-4 pr-12 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
@@ -211,12 +220,6 @@ const submit = async (e) => {
               </div>
             </div>
 
-            {error && (
-              <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
-                {error}
-              </p>
-            )}
-
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-slate-600">
                 <input type="checkbox" className="h-4 w-4 rounded border-line" /> Ingat saya
@@ -225,6 +228,14 @@ const submit = async (e) => {
                 Lupa kata sandi?
               </Link>
             </div>
+
+            {!DEMO && <Captcha key={kunci} onToken={setCaptcha} />}
+
+            {error && (
+              <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+                {error}
+              </p>
+            )}
 
             <button
               type="submit"

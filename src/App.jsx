@@ -41,6 +41,8 @@ import Anggaran from "./pages/Anggaran";
 import KelolaAnggaran from "./pages/admin/KelolaAnggaran";
 import KelolaDokumentasi from "./pages/admin/KelolaDokumentasi";
 import FasilitasSekolah from "./pages/FasilitasSekolah";
+import AjukanTamu from "./pages/AjukanTamu";
+import KelolaLayanan from "./pages/admin/KelolaLayanan";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -89,6 +91,7 @@ export default function App() {
             <Route path="/layanan/anggaran" element={<Anggaran />} />
             <Route path="/layanan/administrasi-persuratan" element={<AdministrasiPersuratan />} />
             <Route path="/layanan/kebersihan-keamanan" element={<FasilitasSekolah />} />
+            <Route path="/layanan/pengajuan/:slug" element={<AjukanTamu />} />
             <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/layanan/:slug" element={<LayananDetail />} />
             <Route path="/layanan/:slug" element={<LayananDetail />} />
@@ -96,6 +99,7 @@ export default function App() {
             <Route path="/pengumuman/:id" element={<PengumumanDetail />} />
             <Route path="/kontak" element={<Kontak />} />
             <Route path="/ajukan" element={<Ajukan />} />
+
 
             {/* Perlu masuk */}
             <Route path="/akun" element={<RequireRole roles={SEMUA}><Akun /></RequireRole>} />
@@ -111,10 +115,12 @@ export default function App() {
             {/* Dashboard staf TU */}
             <Route path="/tu" element={<RequireRole roles={["tu"]}><TuLayout /></RequireRole>}>
               <Route index element={<TuDashboard />} />
+              <Route path="layanan" element={<RequireRole izin="layanan"><KelolaLayanan /></RequireRole>} />
               <Route path="sk" element={<RequireRole izin="sk"><KelolaSK /></RequireRole>} />
               <Route path="pegawai" element={<RequireRole izin="pegawai"><KelolaPegawai /></RequireRole>} />
               <Route path="siswa" element={<RequireRole izin="siswa"><KelolaSiswa /></RequireRole>} />
               <Route path="anggaran" element={<RequireRole izin="anggaran"><KelolaAnggaran /></RequireRole>} />
+              <Route path="layanan" element={<RequireRole izin="layanan"><KelolaLayanan /></RequireRole>} />
               <Route path="pengumuman" element={<RequireRole izin="pengumuman"><KelolaPengumuman /></RequireRole>} />
               <Route path="banner" element={<RequireRole izin="banner"><KelolaBanner /></RequireRole>} />
               <Route path="kontak" element={<RequireRole izin="kontak"><KelolaKontak /></RequireRole>} />

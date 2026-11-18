@@ -4,6 +4,7 @@ import { SERVICES, ALUR_STATUS, LABEL_ALUR } from "../data/content";
 import ServiceIcon from "../components/ServiceIcon";
 import CekStatusPanel from "../components/CekStatusPanel";
 import DokumenPanel from "../components/DokumenPanel";
+import LayananTamuPanel from "../components/LayananTamuPanel";
 
 const SLUG = "administrasi-persuratan";
 
@@ -53,6 +54,7 @@ export default function AdministrasiPersuratan() {
       </section>
 
       <div className="mt-6 space-y-6">
+        <LayananTamuPanel />
         <CekStatusPanel />
 
         {/* Alur proses */}
